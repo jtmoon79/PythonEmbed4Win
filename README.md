@@ -10,5 +10,5 @@ This script will handle the tedious tweaks so the new Python installation will
 run in an isolated manner.
 
 This is similar to a Python Virtual Environment but technically is not.
-It does not add an _activate_ script to set environment variable `VIRTUAL_ENV`
-or modify the `PATH`.
+It does not require an _activate_ script to set environment variable `VIRTUAL_ENV`
+or modify the `PATH`. It will run isolated without environment modifications.
