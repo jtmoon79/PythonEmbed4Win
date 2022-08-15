@@ -12,3 +12,5 @@ run in an isolated manner.
 This is similar to a Python Virtual Environment but technically is not.
 It does not require an _activate_ script to set environment variable `VIRTUAL_ENV`
 or modify the `PATH`. It will run isolated without environment modifications.
+
+Derived from [this StackOverflow answer](https://stackoverflow.com/a/68958636/471376).
