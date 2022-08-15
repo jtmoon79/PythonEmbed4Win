@@ -7,7 +7,7 @@ Python installation is required.
 To run:
 
 ```powershell
-PS> Invoke-WebRequest -Uri https://raw.githubusercontent.com/jtmoon79/PythonEmbed4Win/main/PythonEmbed4Win.ps1 -OutFile PythonEmbed4Win.ps1
+PS> Invoke-WebRequest -Uri "https://raw.githubusercontent.com/jtmoon79/PythonEmbed4Win/main/PythonEmbed4Win.ps1" -OutFile "PythonEmbed4Win.ps1"
 PS> .\PythonEmbed4Win.ps1 -?
 ```
 
