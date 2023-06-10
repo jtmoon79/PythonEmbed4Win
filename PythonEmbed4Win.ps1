@@ -638,7 +638,16 @@ function Process-Version {
     return $version
 }
 
+
+function Test-Powershell-Version {
+    # check powershell version is at least 7.2
+    if (7 -ge $PSVersionTable.PSVersion.Major -And 2 -ge $PSVersionTable.PSVersion.Minor) {
+        Write-Error "PowerShell version must be at least v7.2, found v$($PSVersionTable.PSVersion.Major).$($PSVersionTable.PSVersion.Minor)"
+    }
+}
+
 try {
+    Test-Powershell-Version
     if (-not $Arch) {
         $Arch = $arch_default
     }
@@ -690,6 +699,7 @@ try {
     $ErrorActionPreference = "Continue"
     Write-Error $_.ScriptStackTrace
     Write-Error -Message $_.Exception.Message
+    [Console]::ReadKey()
 } finally {
     Remove-Item -Recurse $path_tmp1
     $ErrorActionPreference = $erroractionpreference_
