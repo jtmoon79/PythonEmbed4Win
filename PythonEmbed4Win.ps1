@@ -381,6 +381,50 @@ function New-TemporaryDirectory {
         | ForEach-Object { New-Item -Path $_ -ItemType Directory -Force }
 }
 
+function Print-File-Nicely {
+    <#
+    .SYNOPSIS
+    Print a file for easy grok.
+    #>
+    Param([System.IO.FileInfo]$path)
+
+    Write-Host -ForegroundColor Yellow `
+        "File:" $path "`n"
+    $text = Get-Content $path -Raw
+    $textt = "`t" + $text.Replace("`n", "`n`t").TrimEnd("`t")
+    Write-Host -ForegroundColor Yellow $textt
+}
+
+function Invoke-WebRequest-Head {
+    <#
+    .SYNOPSIS
+    Wrapper to call `Invoke-WebRequest` using HTTP Method HEAD,
+    adjusted to the running version of PowerShell.
+    #>
+    Param(
+        [Parameter(Mandatory=$true)][URI]$uri
+    )
+
+    if (7 -le $PSVersionTable.PSVersion.Major) {
+        # XXX: not entirely sure precisely which Powershell version introduced
+        #      the `-SkipHTTPErrorCheck` parameter.
+        $result = Invoke-WebRequest -Uri $uri -Method Head -SkipHTTPErrorCheck
+    } else {
+        try {
+            # if the HTTP Status Code is >=400 then this always raises an error
+            # even if passed `-ErrorAction SilentlyContinue`. So it must be
+            # handled specially.
+            $result = Invoke-WebRequest -Uri $uri -Method Head
+        } catch {
+            $result = [PSCustomObject]@{
+                StatusCode = 500
+                StatusDescription = "BAD"
+            }
+        }
+    }
+    return $result
+}
+
 function Download
 {
     # download file at $uri to $dest, note the time taken
@@ -391,13 +435,14 @@ function Download
 
     $start_time = Get-Date
     [Net.ServicePointManager]::SecurityProtocol = $SecurityProtocolType
-    $wr1 = Invoke-WebRequest -Uri $uri.ToString() -OutFile $dest
-    # BUG: why is Invoke-WebRequest sometimes returning no object!?
+    $ProgressPreference = 'SilentlyContinue'
+    $wr1 = Invoke-WebRequest -Uri $uri -OutFile $dest
+    # BUG: why does Invoke-WebRequest sometimes return no object!?
     $sc = "URI "
     if ($wr1) {
         $sc = "URI " + $wr1.StatusCode.ToString() + " "
     }
-    Write-Host ($sc + $uri.ToString() + " downloaded to " + $dest)
+    Write-Host ($sc + $uri.ToString() + " downloaded to temporary directory " + $dest)
 
     Write-Verbose "Downloaded time: $((Get-Date).Subtract($start_time).Seconds) second(s)"
 }
@@ -642,11 +687,11 @@ function Process-Python-Zip
 # standard libraries
 .\python_zip
 # importing site will run sitecustomize.py
-import site
-".ReplaceLineEndings()
-    Write-Host -ForegroundColor Yellow `
-        "Set" $pythonpth "Contents:`n`n`t" $content_pythonpth.ReplaceLineEndings("`n`t") "`n"
-    $content_pythonpth | Out-File -Force -FilePath $pythonpth -Encoding "utf8"
+import site".Replace("`r`n", "`n")
+    # use 'ascii' encoding, 'utf8' will prepend UTF8 BOM which is seen by Python
+    # as a path (and just makes a junk path)
+    $content_pythonpth | Out-File -Force -FilePath $pythonpth -Encoding "ascii"
+    Print-File-Nicely $pythonpth
 
     # 3. set sitecustomize.py
     $python_site_path = Join-Path -Path "." -ChildPath "sitecustomize.py"
@@ -657,10 +702,10 @@ import site
 # this hack was added by ${SCRIPT_NAME}
 site.ENABLE_USER_SITE = False
 if site.USER_SITE in sys.path:
-    sys.path.remove(site.USER_SITE)".ReplaceLineEndings()
-    Write-Host -ForegroundColor Yellow `
-        "Set" $python_site_path "Contents:`n`n`t" $content_sitecustomize.ReplaceLineEndings("`n`t") "`n"
-    $content_sitecustomize | Out-File -FilePath $python_site_path -Encoding "utf8"
+    sys.path.remove(site.USER_SITE)".Replace("`r`n", "`n")
+    # use 'ascii' encoding, see above
+    $content_sitecustomize | Out-File -FilePath $python_site_path -Encoding "ascii"
+    Print-File-Nicely $python_site_path
 
     # 4. create empty directory DLLs
     $python_DLL_path = Join-Path -Path "." -ChildPath "DLLs"
@@ -682,7 +727,6 @@ if site.USER_SITE in sys.path:
     Write-Host -ForegroundColor Yellow "`nPython print sys.path:"
     & $python_exe -O -c "import sys, pprint
 pprint.pprint(sys.path)
-print()
 "
     if ($LastExitCode -ne 0) {
         Write-Error "Python sys.path test failed"
@@ -691,8 +735,8 @@ print()
     Pop-Location
 
     # 6. get pip
-    Write-Host -ForegroundColor Yellow "`n`nInstall pip:`n${python_exe} -O ${path_getpip} --no-warn-script-location`n"
     $path_getpip = ".\get-pip.py"
+    Write-Host -ForegroundColor Yellow "`n`nInstall pip:`n${python_exe} -O ${path_getpip} --no-warn-script-location`n"
     Download $URI_GETPIP $path_getpip
     & $python_exe -O $path_getpip --no-warn-script-location
     if ($LastExitCode -ne 0) {
@@ -706,7 +750,8 @@ print()
     if ($LastExitCode -ne 0) {
         Write-Error "python -m pip list failed"
     }
-    Write-Host -ForegroundColor Yellow "`n`n`nNew self-contained Python executable is at" $python_exe
+    Write-Host -ForegroundColor Yellow "`n`n`nNew self-contained Python executable is at " -NoNewline
+    Write-Host -ForegroundColor Yellow -BackgroundColor Blue $python_exe
 }
 
 function Install-Python
@@ -761,16 +806,9 @@ function Process-Version {
     return $version
 }
 
-
-function Test-Powershell-Version {
-    # check powershell version is at least 7.2
-    if (7 -ge $PSVersionTable.PSVersion.Major -And 2 -ge $PSVersionTable.PSVersion.Minor) {
-        Write-Error "PowerShell version must be at least v7.2, found v$($PSVersionTable.PSVersion.Major).$($PSVersionTable.PSVersion.Minor)"
-    }
-}
-
 try {
-    Test-Powershell-Version
+    Set-StrictMode -Version 3.0
+
     if (-not $Arch) {
         $Arch = $arch_default
     }
@@ -833,6 +871,7 @@ try {
     Write-Error -Message $_.Exception.Message
     [Console]::ReadKey()
 } finally {
+    Set-StrictMode -Off
     Remove-Item -Recurse $path_tmp1
     $ErrorActionPreference = $erroractionpreference_
     Set-Location -Path $startLocation
