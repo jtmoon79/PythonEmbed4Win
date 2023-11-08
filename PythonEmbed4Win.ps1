@@ -37,6 +37,12 @@
     This installed Python distribution a Python Virtual Environment but
     technically is not. It does not set environment variable VIRTUAL_ENV nor
     modify the PATH.
+    Use of this installation must call the `python.exe` executable first. Do not
+    call other modules by their script entrypoint,
+    e.g. for using pip, do not
+        path/to/embed/Scripts/pip.exe install ...
+    do
+        path/to/embed/Scripts/python.exe -m pip install ...
 
     Inspired by this stackoverflow.com question:
     https://stackoverflow.com/questions/68958635/python-windows-embeddable-package-fails-to-run-no-module-named-pip-the-system/68958636
@@ -53,6 +59,9 @@
              C:\python-msi-install-3.8.6
              C:\python-msi-install-3.8.6\lib\site-packages
           The python._pth and sitecustomize.py seem to have no affect.
+
+    BUG: interleaved console output among `Write-Host` and `python.exe` near
+         script completion.
 .PARAMETER Version
     Version of Python to install. Leave blank to fetch the latest Python.
     Can pass major.minor.micro or just major.minor, e.g. "3.8.2" or "3.8".
