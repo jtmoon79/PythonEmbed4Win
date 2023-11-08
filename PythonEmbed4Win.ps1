@@ -31,6 +31,9 @@
 
     Only Python 3.6 and later releases will function correctly.
 
+    -UriCheck is merely a self-test to see which URIs for embed.zip files
+    are valid.
+
     This installed Python distribution a Python Virtual Environment but
     technically is not. It does not set environment variable VIRTUAL_ENV nor
     modify the PATH.
@@ -58,8 +61,8 @@
     Install to this path. Defaults to a descriptive name.
 .PARAMETER Arch
     Architecture: win32 or amd64. Defatults to the current architecture.
-.PARAMETER Help
-    Print the help message and return.
+.PARAMETER UriCheck
+    Only check pre-filled URIs (script self-test).
 .LINK
     https://github.com/jtmoon79/PythonEmbed4Win
 .NOTES
@@ -71,16 +74,11 @@ Param (
     [string] $Path,
     [string] $Version,
     [string] $Arch,
-    [switch] $help
+    [switch] $UriCheck
 )
 
 New-Variable -Name SCRIPT_NAME -Value "PythonEmbed4Win.ps1" -Option ReadOnly -Force
 $SecurityProtocolType = [Net.SecurityProtocolType]::Tls12
-
-if ($help) {
-    Get-Help "${PSScriptRoot}\${SCRIPT_NAME}"
-    Return
-}
 
 # save current values
 # TODO: is there a way to push and pop context like this?
@@ -348,14 +346,21 @@ function Confirm-URI
     # confirm URI exists by sending HTTP HEAD request
     # return $True if HTTP StatusCode == 200 else $False
     Param(
-        [Parameter(Mandatory=$true)][URI]$uri
+        [Parameter(Mandatory=$true)][URI]$uri,
+        [Parameter(Mandatory=$false)][bool]$printResult=$false
     )
 
     [Net.ServicePointManager]::SecurityProtocol = $SecurityProtocolType
-    $wr1 = Invoke-WebRequest -Uri $uri.ToString() -Method Head -SkipHTTPErrorCheck
-    Write-Host ("URI " + $uri.ToString() + " returned " + $wr1.StatusCode.ToString())
+    $ProgressPreference = 'SilentlyContinue'
+    $wr1 = Invoke-WebRequest-Head -Uri $uri
     if ($wr1.StatusCode -eq 200) {
+        if ($printResult) {
+            Write-Host ("URI " + $uri.ToString() + " returned " + $wr1.StatusCode.ToString()) -ForegroundColor Green
+        }
         return $True
+    }
+    if ($printResult) {
+        Write-Host ("URI " + $uri.ToString() + " returned " + $wr1.StatusCode.ToString()) -ForegroundColor Red
     }
     return $False
 }
@@ -364,22 +369,24 @@ function Confirm-URI-Python-Version
 {
     # confirm the URI for a python zip file exists
     # first check known hardcoded URIs then do Confirm-URI $uri
+    # if -onlyLive then skip known hardcoded URIs (check them online)
     # return boolean
     Param(
-        [Parameter(Mandatory=$true)][URI]$uri
+        [Parameter(Mandatory=$true)][URI]$uri,
+        [Parameter(Mandatory=$false)][bool]$onlyLive=$false
     )
 
     # first check hardcoded known URIs
-    if ($URIs_200.Contains($uri.ToString())) {
+    if (($URIs_200.Contains($uri.ToString())) -and (-not $onlyLive)) {
         Write-Verbose "URI known to exist ${uri}"
         return $True
-    } elseif ($URIs_503.Contains($uri.ToString())) {
+    } elseif (($URIs_503.Contains($uri.ToString())) -and (-not $onlyLive)) {
         Write-Verbose "URI known to not exist ${uri}"
         return $False
     }
     # check live URI
     Write-Verbose "URI must be checked ${uri}"
-    return Confirm-URI $uri
+    return Confirm-URI $uri $onlyLive
 }
 
 function Create-Python-Zip-Name
@@ -427,7 +434,8 @@ function Scrape-Python-Versions
     (
         [Parameter(Mandatory=$true)][URI]$uri,
         [Parameter(Mandatory=$true)][string]$path_tmp,
-        [Parameter(Mandatory=$true)][Archs]$arch_install
+        [Parameter(Mandatory=$true)][Archs]$arch_install,
+        [Parameter(Mandatory=$false)][bool]$onlyLive=$false
     )
     Write-Verbose ("Scraping all available versions of Python at " + $uri.ToString())
 
@@ -450,7 +458,9 @@ function Scrape-Python-Versions
     # TODO: consider using built-in HTML parser instead of regexp scraping
     #       https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/invoke-webrequest?view=powershell-7.2#example-3--get-links-from-a-web-page
     #
-    $links = [Collections.Hashtable]::new()
+
+    # scrape the versions
+    $versions_scraped = New-Object Collections.Generic.List[System.Version]
     foreach(
         $m1 in Select-String -CaseSensitive -Pattern '\<a href="[345]\.\d+\.\d+/"\>' -Path $python_versions_html
     ) {
@@ -466,13 +476,65 @@ function Scrape-Python-Versions
         }
         $version_scraped = $m3.Matches.Value
         # $version_scraped the version number, e.g. '3.8.10'
-        $sys_version = [System.Version]$version_scraped
-        $uri_file = Create-Python-Zip-URI $URI_PYTHON_VERSIONS $sys_version $arch_install
-        if (Confirm-URI-Python-Version $uri_file) {
-            $links.Add($sys_version, $uri_file)
+        $py_version = [System.Version]$version_scraped
+        Write-Verbose "scraped version '$version_scraped'"
+        $versions_scraped.Add($py_version)
+    }
+    $versions_scraped.sort()
+
+    # check which scraped versions are valid URIs
+    $links = [Collections.Hashtable]::new()
+    foreach ($py_version in $versions_scraped) {
+        $uri_file = Create-Python-Zip-URI $URI_PYTHON_VERSIONS $py_version $arch_install
+        if (Confirm-URI-Python-Version $uri_file -onlyLive $onlyLive) {
+            Write-Verbose "Add link '$uri_file'"
+            $links.Add($py_version, $uri_file)
         }
     }
+
     return $links
+}
+
+function Check-Premade-Uris
+{
+    <#
+    .SYNOPSIS
+    Check built-in URIs for expected HTTP Status Codes
+    Only meant to aid self-testing this script.
+    #>
+    Param
+    (
+        [Parameter(Mandatory=$true)][Archs]$arch_install
+    )
+    Write-Host "Check expected good URIs for" $arch_install.ToString()
+    foreach ($uri in $URIs_200) {
+        if (-not ($uri.ToString().Contains($arch_install.ToString())))
+        {
+            continue
+        }
+        if ($wr1 = Invoke-WebRequest-Head -Uri $uri) {
+            if ($wr1.StatusCode -eq 200) {
+                Write-Host ("URI " + $uri.ToString() + " returned " + $wr1.StatusCode.ToString() + " (expected 200)") -ForegroundColor Green
+            } else {
+                Write-Host ("URI " + $uri.ToString() + " returned " + $wr1.StatusCode.ToString() + " (not expected)") -ForegroundColor Red
+            }
+        }
+    }
+
+    Write-Host "Check expected bad URIs for" $arch_install.ToString() "(scraped URIs that lead to invalid data)"
+    foreach ($uri in $URIs_503) {
+        if (-not ($uri.ToString().Contains($arch_install.ToString())))
+        {
+            continue
+        }
+        if ($wr1 = Invoke-WebRequest-Head -Uri $uri) {
+            if ($wr1.StatusCode -ge 400) {
+                Write-Host ("URI " + $uri.ToString() + " returned " + $wr1.StatusCode.ToString() + " (expected ≥400)") -ForegroundColor Green
+            } else {
+                Write-Host ("URI " + $uri.ToString() + " returned " + $wr1.StatusCode.ToString() + " (not expected)") -ForegroundColor Red
+            }
+        }
+    }
 }
 
 function Process-Python-Zip
@@ -655,6 +717,15 @@ try {
         Write-Error ("Unknown -arch '${arch}', must be one of " + [Archs].GetEnumNames())
     }
     $archs_ = [Archs]$Arch
+
+    if ($UriCheck) {
+        Check-Premade-Uris $archs_
+        Write-Host "Check live scraped URIs for" $archs_.ToString()
+        Write-Host "(These should match the previous predefined URI settings)"
+        $path_tmp1 = New-TemporaryDirectory -extra ("python-latest-" + $archs_.ToString())
+        $version_links = Scrape-Python-Versions $URI_PYTHON_VERSIONS $path_tmp1 $archs_ $True
+        return
+    }
 
     if ([string]::IsNullOrEmpty($Version)) {
         $path_tmp1 = New-TemporaryDirectory -extra ("python-latest-" + $archs_.ToString())
