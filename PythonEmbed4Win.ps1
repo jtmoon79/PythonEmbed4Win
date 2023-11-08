@@ -80,9 +80,9 @@
 #>
 [Cmdletbinding()]
 Param (
-    [string] $Path,
-    [string] $Version,
-    [string] $Arch,
+    [String] $Path,
+    [String] $Version,
+    [String] $Arch,
     [switch] $UriCheck
 )
 
@@ -107,9 +107,10 @@ New-Variable -Name URI_PYTHON_VERSIONS -Option ReadOnly -Force -Value ([URI] "ht
 
 function URI-Combine
 {
+    [OutputType([URI])]
     Param(
         [Parameter(Mandatory=$true)][URI]$uri,
-        [Parameter(Mandatory=$true)][string]$append
+        [Parameter(Mandatory=$true)][String]$append
     )
     return [URI]($uri.ToString() + $append.ToString())
 }
@@ -376,7 +377,7 @@ $URIs_503 = @(
 )
 
 function New-TemporaryDirectory {
-    Param([string]$extra)
+    Param([String]$extra)
     Join-Path -Path $([System.IO.Path]::GetTempPath()) -ChildPath $extra.ToString() `
         | ForEach-Object { New-Item -Path $_ -ItemType Directory -Force }
 }
@@ -427,10 +428,13 @@ function Invoke-WebRequest-Head {
 
 function Download
 {
-    # download file at $uri to $dest, note the time taken
+    <#
+    .SYNOPSIS
+    download file at $uri to $dest, note the time taken
+    #>
     Param(
         [Parameter(Mandatory=$true)][URI]$uri,
-        [Parameter(Mandatory=$true)][string]$dest
+        [Parameter(Mandatory=$true)][String]$dest
     )
 
     $start_time = Get-Date
@@ -449,11 +453,15 @@ function Download
 
 function Confirm-URI
 {
-    # confirm URI exists by sending HTTP HEAD request
-    # return $True if HTTP StatusCode == 200 else $False
+    <#
+    .SYNOPSIS
+    confirm URI exists by sending HTTP HEAD request
+    return $True if HTTP StatusCode == 200 else $False
+    #>
+    [OutputType([Bool])]
     Param(
         [Parameter(Mandatory=$true)][URI]$uri,
-        [Parameter(Mandatory=$false)][bool]$printResult=$false
+        [Parameter(Mandatory=$false)][Bool]$printResult=$false
     )
 
     [Net.ServicePointManager]::SecurityProtocol = $SecurityProtocolType
@@ -473,13 +481,16 @@ function Confirm-URI
 
 function Confirm-URI-Python-Version
 {
-    # confirm the URI for a python zip file exists
-    # first check known hardcoded URIs then do Confirm-URI $uri
-    # if -onlyLive then skip known hardcoded URIs (check them online)
-    # return boolean
+    <#
+    .SYNOPSIS
+    confirm the URI for a python zip file exists
+    first check known hardcoded URIs then do Confirm-URI $uri
+    if -onlyLive then skip known hardcoded URIs (check them online)
+    #>
+    [OutputType([Bool])]
     Param(
         [Parameter(Mandatory=$true)][URI]$uri,
-        [Parameter(Mandatory=$false)][bool]$onlyLive=$false
+        [Parameter(Mandatory=$false)][Bool]$onlyLive=$false
     )
 
     # first check hardcoded known URIs
@@ -497,8 +508,12 @@ function Confirm-URI-Python-Version
 
 function Create-Python-Zip-Name
 {
-    # return String of python embed.zip file name
-    # e.g. "python-3.8.2-embed-amd64.zip"
+    <#
+    .SYNOPSIS
+    return String of python embed.zip file name
+    e.g. "python-3.8.2-embed-amd64.zip"
+    #>
+    [OutputType([String])]
     Param
     (
         [Parameter(Mandatory=$true)][System.Version]$version,
@@ -509,11 +524,13 @@ function Create-Python-Zip-Name
 
 function Create-Python-Zip-URI
 {
-    # return URI for the Python embed.zip
-    #
-    # example URI of embed .zip
-    #     https://www.python.org/ftp/python/3.8.2/python-3.8.2-embed-amd64.zip
-    #
+    <#
+    .SYNOPSIS
+    return URI for the Python embed.zip
+    example URI of embed .zip
+        https://www.python.org/ftp/python/3.8.2/python-3.8.2-embed-amd64.zip
+    #>
+    [OutputType([URI])]
     Param
     (
         [Parameter(Mandatory=$true)][URI]$base_uri,
@@ -531,17 +548,20 @@ function Create-Python-Zip-URI
 
 function Scrape-Python-Versions
 {
-    # scrape the HTML page for all archived Python builds
-    # among versions, do HTTP HEAD to check if the associated embed.zip file
-    # exists.
-    #
-    # return Hashtable{[System.Version]$version, [URI]$URI_zip}
+    <#
+    .SYNOPSIS
+    Scrape the Python versions HTML page for all archived Python builds among
+    versions, do HTTP HEAD to check if the associated embed.zip file exists.
+
+    return Hashtable{[System.Version]$version, [URI]$URI_zip}
+    #>
+    [OutputType([System.Collections.Hashtable])]
     Param
     (
         [Parameter(Mandatory=$true)][URI]$uri,
-        [Parameter(Mandatory=$true)][string]$path_tmp,
+        [Parameter(Mandatory=$true)][String]$path_tmp,
         [Parameter(Mandatory=$true)][Archs]$arch_install,
-        [Parameter(Mandatory=$false)][bool]$onlyLive=$false
+        [Parameter(Mandatory=$false)][Bool]$onlyLive=$false
     )
     Write-Verbose ("Scraping all available versions of Python at " + $uri.ToString())
 
@@ -589,7 +609,7 @@ function Scrape-Python-Versions
     $versions_scraped.sort()
 
     # check which scraped versions are valid URIs
-    $links = [Collections.Hashtable]::new()
+    $links = [System.Collections.Hashtable]::new()
     foreach ($py_version in $versions_scraped) {
         $uri_file = Create-Python-Zip-URI $URI_PYTHON_VERSIONS $py_version $arch_install
         if (Confirm-URI-Python-Version $uri_file -onlyLive $onlyLive) {
@@ -645,14 +665,18 @@ function Check-Premade-Uris
 
 function Process-Python-Zip
 {
-    # given the downloaded python zip file $python_zip, install it to $path_install
-    # with needed tweaks
-    #
+    <#
+    .SYNOPSIS
+    Given the downloaded python zip file $python_zip, install it to
+    $path_install.
+    Only meant to aid self-testing this script.
+    #>
+
     # BUG: interleaved Write-host and $python_exe stdout occurs
     Param
     (
-        [Parameter(Mandatory=$true)][string]$path_zip,
-        [Parameter(Mandatory=$true)][string]$path_install
+        [Parameter(Mandatory=$true)][String]$path_zip,
+        [Parameter(Mandatory=$true)][String]$path_install
     )
 
     # if $path_install does not exist this will raise
@@ -756,11 +780,15 @@ pprint.pprint(sys.path)
 
 function Install-Python
 {
-    # install python from an embed.zip URI
+    <#
+    .SYNOPSIS
+    Install python from zipped install `$uri_zip` to `$path_install`.
+    Use temporary path `$path_tmp` for intermediate steps.
+    #>
     Param
     (
-        [Parameter(Mandatory=$true)][string]$path_tmp,
-        [Parameter(Mandatory=$true)][string]$path_install,
+        [Parameter(Mandatory=$true)][String]$path_tmp,
+        [Parameter(Mandatory=$true)][String]$path_install,
         [Parameter(Mandatory=$true)][URI]$uri_zip
     )
     $name_zip = $uri_zip.Segments[-1]
@@ -782,7 +810,11 @@ function Install-Python
 }
 
 function Process-Version {
-    # resolve major or major.minor to latest major.minor.micro
+    <#
+    .SYNOPSIS
+    Resolve major or major.minor to latest major.minor.micro
+    #>
+    [OutputType([System.Version])]
     Param
     (
         [Parameter(Mandatory=$true)][System.Version]$version,
@@ -826,7 +858,7 @@ try {
         return
     }
 
-    if ([string]::IsNullOrEmpty($Version)) {
+    if ([String]::IsNullOrEmpty($Version)) {
         $path_tmp1 = New-TemporaryDirectory -extra ("python-latest-" + $archs_.ToString())
         Write-Verbose "Temporary Directory ${path_tmp1}"
         $version_links = Scrape-Python-Versions $URI_PYTHON_VERSIONS $path_tmp1 $archs_
