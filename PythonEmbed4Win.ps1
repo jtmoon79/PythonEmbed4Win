@@ -7,9 +7,6 @@
 #     PS> Invoke-WebRequest -Uri https://raw.githubusercontent.com/jtmoon79/PythonEmbed4Win/main/PythonEmbed4Win.ps1 -OutFile PythonEmbed4Win.ps1
 #     PS> .\PythonEmbed4Win.ps1 -?
 #
-# BUG: how to flush all streams? currently getting interleaved text in console
-#      hack workarounds are Write-Host `n but it's not perfect
-#
 
 <#
 .SYNOPSIS
