@@ -1,8 +1,8 @@
 # PythonEmbed4Win
 
 A [single PowerShell script](PythonEmbed4Win.ps1) to easily and quickly
-create a standalone Python local environment from a Windows embed.zip. No prior
-Python installation is required.
+create a standalone Python local environment from a Windows `embed.zip`
+distributed file. No prior Python installation is required.
 
 To run:
 
@@ -13,7 +13,7 @@ PS> .\PythonEmbed4Win.ps1 -?
 
 <br/>
 
-Installing the Python for Windows Embed zip file requires some tedious tweaks.
+Installing the Python for Windows embedded zip file requires some tedious tweaks.
 See this [gist](https://gist.github.com/jtmoon79/ce63fe655b2f544462e70d8e5ec30ff5).
 This script will handle the tedious tweaks so the new Python installation will
 run in an isolated manner.
