@@ -1,5 +1,8 @@
 # PythonEmbed4Win
 
+![Static Badge](https://img.shields.io/badge/PowerShell%205-blue?logo=PowerShell)
+![Static Badge](https://img.shields.io/badge/PowerShell%207-purple?logo=PowerShell)
+
 A [single PowerShell script](PythonEmbed4Win.ps1) to easily and quickly
 create a standalone Python local environment from a Windows `embed.zip`
 distributed file. No prior Python installation is required.
