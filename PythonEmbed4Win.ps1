@@ -702,7 +702,7 @@ function Process-Python-Zip
 
     # 2. set python._pth file
     $pythonpth = Get-ChildItem -File -Filter "python*._pth" -Depth 1
-    if($pythonpth -eq $null) {
+    if($null -eq $pythonpth) {
         $pythonpth = ".\python._pth"
     }
     $content_pythonpth = "# python._pth
