@@ -689,7 +689,7 @@ function Process-Python-Zip
 
     # not all versions of embed.zip have this directory
     # e.g. https://www.python.org/ftp/python/3.8.4/python-3.8.4-embed-amd64.zip
-    New-Item -type directory "Lib/site-packages"
+    New-Item -type Directory "Lib/site-packages"
 
     # 2. set python._pth file
     $pythonpth = Get-ChildItem -File -Filter "python*._pth" -Depth 1
@@ -704,7 +704,7 @@ function Process-Python-Zip
 # importing site will run sitecustomize.py
 import site".Replace("`r`n", "`n")
     # use 'ascii' encoding, 'utf8' will prepend UTF8 BOM which is seen by Python
-    # as a path (and just makes a junk path)
+    # as a path (and Python then adds a junk path to `sys.path`)
     $content_pythonpth | Out-File -Force -FilePath $pythonpth -Encoding "ascii"
     Print-File-Nicely $pythonpth
 
