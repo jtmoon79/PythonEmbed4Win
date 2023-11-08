@@ -86,12 +86,6 @@ Param (
 New-Variable -Name SCRIPT_NAME -Value "PythonEmbed4Win.ps1" -Option ReadOnly -Force
 $SecurityProtocolType = [Net.SecurityProtocolType]::Tls12
 
-# save current values
-# TODO: is there a way to push and pop context like this?
-$erroractionpreference_ = $ErrorActionPreference
-$ErrorActionPreference = "Stop"
-$startLocation = Get-Location
-
 Enum Archs {
     # enum names are the literal substrings within the named .zip file
     win32
@@ -837,6 +831,11 @@ function Process-Version {
 
 try {
     Set-StrictMode -Version 3.0
+    # save current values
+    # TODO: is there a way to push and pop context like this?
+    $erroractionpreference_ = $ErrorActionPreference
+    $ErrorActionPreference = "Stop"
+    $startLocation = Get-Location
 
     if (-not $Arch) {
         $Arch = $arch_default
@@ -901,7 +900,7 @@ try {
     [Console]::ReadKey()
 } finally {
     Set-StrictMode -Off
-    Remove-Item -Recurse $path_tmp1
+    Remove-Item -Recurse $path_tmp1 -ErrorAction Continue
     $ErrorActionPreference = $erroractionpreference_
     Set-Location -Path $startLocation
 }
