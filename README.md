@@ -12,7 +12,7 @@ To run:
 
 ```powershell
 PS> Invoke-WebRequest -Uri "https://raw.githubusercontent.com/jtmoon79/PythonEmbed4Win/main/PythonEmbed4Win.ps1" -OutFile "PythonEmbed4Win.ps1"
-PS> .\PythonEmbed4Win.ps1 -?
+PS> Get-Help .\PythonEmbed4Win.ps1 -full
 ```
 
 <br/>
