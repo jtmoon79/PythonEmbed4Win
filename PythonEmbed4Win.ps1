@@ -745,7 +745,21 @@ del __user_site_resolve
     $content_sitecustomize | Out-File -FilePath $python_site_path -Encoding "ascii"
     Print-File-Nicely $python_site_path
 
-    # 4. create empty directory DLLs
+    # 5. set `pip.ini`
+    $python_pip_ini = Join-Path -Path "." -ChildPath "pip.ini"
+    $content_pip_ini = "# pip.ini
+#
+# this file was added by PythonEmbed4Win.ps1
+
+[install]
+# this embed installation does not add itself to the shell environment PATH; do not warn about that
+no-warn-script-location = false
+".Replace("`r`n", "`n")
+    # use 'ascii' encoding, see above
+    $content_pip_ini | Out-File -FilePath $python_pip_ini -Encoding "ascii"
+    Print-File-Nicely $python_pip_ini
+
+    # 6. create empty directory DLLs
     $python_DLL_path = Join-Path -Path "." -ChildPath "DLLs"
     Write-Host -ForegroundColor Yellow "Create Directory" $python_DLL_path
     New-Item -type directory $python_DLL_path
