@@ -660,14 +660,15 @@ function Process-Python-Zip
     .SYNOPSIS
     Given the downloaded python zip file $python_zip, install it to
     $path_install.
-    Only meant to aid self-testing this script.
+
+    BUG: interleaved Write-host and python.exe stdout occurs here
     #>
 
-    # BUG: interleaved Write-host and $python_exe stdout occurs
     Param
     (
         [Parameter(Mandatory=$true)][String]$path_zip,
-        [Parameter(Mandatory=$true)][String]$path_install
+        [Parameter(Mandatory=$true)][String]$path_install,
+        [Parameter(Mandatory=$true)][System.Version]$ver
     )
 
     # if $path_install does not exist this will raise
@@ -697,6 +698,8 @@ function Process-Python-Zip
         $pythonpth = ".\python._pth"
     }
     $content_pythonpth = "# python._pth
+#
+# this file was added by PythonEmbed4Win.ps1
 .\Scripts
 .
 # standard libraries
@@ -768,7 +771,14 @@ pprint.pprint(sys.path)
 
     Pop-Location
 
-    # 6. get pip
+    # 8. get pip
+    if ($ver -le [System.Version]"3.6") {
+        Write-Warning "Python 3.6 cannot run get-pip.py; you will have to install pip manually"
+        Pop-Location
+        Write-Host -ForegroundColor Yellow "`n`n`nNew self-contained Python executable is at " -NoNewline
+        Write-Host -ForegroundColor Yellow -BackgroundColor Blue $python_exe
+        return
+    }
     $path_getpip = ".\get-pip.py"
     Write-Host -ForegroundColor Yellow "`n`nInstall pip:`n${python_exe} -O ${path_getpip} --no-warn-script-location`n"
     Download $URI_GETPIP $path_getpip
@@ -799,7 +809,8 @@ function Install-Python
     (
         [Parameter(Mandatory=$true)][String]$path_tmp,
         [Parameter(Mandatory=$true)][String]$path_install,
-        [Parameter(Mandatory=$true)][URI]$uri_zip
+        [Parameter(Mandatory=$true)][URI]$uri_zip,
+        [Parameter(Mandatory=$true)][System.Version]$ver
     )
     $name_zip = $uri_zip.Segments[-1]
     $path_zip_tmp = Join-Path -Path $path_tmp -ChildPath $name_zip
@@ -816,7 +827,7 @@ function Install-Python
     }
 
     Write-Information "Installing Python to ${path_install}"
-    Process-Python-Zip $path_zip_tmp $path_install
+    Process-Python-Zip $path_zip_tmp $path_install $ver
 }
 
 function Process-Version {
@@ -877,19 +888,22 @@ try {
         $path_tmp1 = New-TemporaryDirectory -extra ("python-latest-" + $archs_.ToString())
         Write-Verbose "Temporary Directory ${path_tmp1}"
         $version_links = Scrape-Python-Versions $URI_PYTHON_VERSIONS $path_tmp1 $archs_
-        $ver = $version_links.keys | Sort-Object | Select-Object -Last 1
+        $ver = [System.Version]($version_links.keys | Sort-Object | Select-Object -Last 1)
         Write-Verbose "Version set to latest ${ver}"
         Write-Information ("Determined the latest version of Python to be " + $ver.ToString())
         $url_zip = $version_links[$ver]
         $uri_zip = [URI]$url_zip
     } else {
+        $ver = [System.Version] $Version
+        if ($ver -le [System.Version]"3.5") {
+            Write-Error "Python 3.5 and prior can not run from an embed.zip installation; given $ver"
+        }
         $path_tmp1 = New-TemporaryDirectory -extra ("python-" + $Version + "-" + $archs_.ToString())
         Write-Verbose "Temporary Directory ${path_tmp1}"
-        $v1 = [System.Version] $Version
-        if ($v1.Minor -eq -1 -or $v1.Build -eq -1) {
+        if ($ver.Minor -eq -1 -or $ver.Build -eq -1) {
             $version_links = Scrape-Python-Versions $URI_PYTHON_VERSIONS $path_tmp1 $archs_
             $versions = @($version_links.keys)
-            $ver = Process-Version ([System.Version] $v1) $versions
+            $ver = Process-Version ([System.Version] $ver) $versions
             Write-Verbose "Version set to ${ver}"
             if ((-not $ver) -or ($ver.Major -eq -1)) {
                 Write-Error "Unable to process given version ${Version}"
@@ -910,7 +924,7 @@ try {
         $pyDist = "python-" + $ver.ToString() + "-embed-" + $archs_.ToString()
         $Path = Join-Path -Path "." -ChildPath $pyDist
     }
-    Install-Python $path_tmp1 $Path $uri_zip
+    Install-Python $path_tmp1 $Path $uri_zip $ver
     Write-Host -ForegroundColor Yellow "Installed from" $uri_zip
 } catch {
     $ErrorActionPreference = "Continue"
