@@ -948,7 +948,6 @@ try {
     $ErrorActionPreference = "Continue"
     Write-Error $_.ScriptStackTrace
     Write-Error -Message $_.Exception.Message
-    [Console]::ReadKey()
 } finally {
     Set-StrictMode -Off
     Remove-Item -Recurse $path_tmp1 -ErrorAction Continue
