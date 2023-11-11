@@ -950,7 +950,9 @@ try {
     Write-Error -Message $_.Exception.Message
 } finally {
     Set-StrictMode -Off
-    Remove-Item -Recurse $path_tmp1 -ErrorAction Continue
+    if ($null -ne $path_tmp1) {
+        Remove-Item -Recurse $path_tmp1 -ErrorAction Continue
+    }
     $ErrorActionPreference = $erroractionpreference_
     Set-Location -Path $startLocation
 }
