@@ -79,7 +79,6 @@
     https://github.com/jtmoon79/PythonEmbed4Win
 .NOTES
     Author: James Thomas Moon
-    Date: 2022
 #>
 [Cmdletbinding()]
 Param (
