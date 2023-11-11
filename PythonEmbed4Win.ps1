@@ -85,6 +85,9 @@
 Param (
     [String] $Path,
     [String] $Version,
+    # TODO: how to set a script Param to custom Enum type?
+    #       placing the definition of `Enum Archs` _before_ this Param declaration
+    #       will cause an error.
     [String] $Arch,
     [switch] $UriCheck,
     [switch] $SkipExec
