@@ -46,9 +46,9 @@
 
     BUG: Some embed.zip for a few releases are hardcoded to look for other
          Windows Python installations.
-         For example, install Python-3.8.6.msi. Then run this script to
-         install python-3.8.4-embed-amd64.zip.
-         The embed Python 3.8.4 sys.path will be the confusing:
+         For example, if you install Python-3.8.6.msi and then run this script to
+         install python-3.8.4-embed-amd64.zip, the embed Python 3.8.4 sys.path
+         will be the confusing paths:
              C:\python-embed-3.8.4\python38.zip
              C:\python-msi-install-3.8.6\Lib
              C:\python-msi-install-3.8.6\DLLs
@@ -57,7 +57,8 @@
              C:\python-msi-install-3.8.6\lib\site-packages
           The python._pth and sitecustomize.py seem to have no affect.
           As of November 2023, the latest version of supported Pythons,
-          3.6 to 3.12, appear to behave correctly.
+          3.6 to 3.12, appear to behave correctly. It only affects a few
+          intermediate releases.
 
     BUG: interleaved console output among `Write-Host` and `python.exe` near
          script completion.
