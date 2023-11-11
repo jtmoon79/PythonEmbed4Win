@@ -814,6 +814,13 @@ no-warn-script-location = false
     }
     Write-Host -ForegroundColor Yellow "`n`n`nNew self-contained Python executable is at " -NoNewline
     Write-Host -ForegroundColor Green -BackgroundColor Blue $python_exe
+    Write-Host ""
+
+    Write-Host -ForegroundColor Yellow "Note that this installation can only run when python.exe is the first command argument.
+Do not try run pip.exe directly from the Scripts directory nor any other program there.
+Run python.exe and import the required program module, e.g.
+$python_exe -m pip
+"
 }
 
 function Install-Python
