@@ -74,7 +74,7 @@
     Do not execute python.exe after installation.
     This skips the python.exe self-test and the run of `get-pip.py`.
 .PARAMETER UriCheck
-    Only check pre-filled URIs (script self-test).
+    Only check pre-filled URIs (script self-test). Does not install Python.
 .LINK
     https://github.com/jtmoon79/PythonEmbed4Win
 .NOTES
@@ -89,8 +89,8 @@ Param (
     #       placing the definition of `Enum Archs` _before_ this Param declaration
     #       will cause an error.
     [String] $Arch,
-    [switch] $UriCheck,
-    [switch] $SkipExec
+    [switch] $SkipExec,
+    [switch] $UriCheck
 )
 
 New-Variable -Name SCRIPT_NAME -Value "PythonEmbed4Win.ps1" -Option ReadOnly -Force
