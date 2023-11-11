@@ -739,6 +739,7 @@ for __i, __path in enumerate(sys.path):
 for __index_del in reversed(__sys_path_index_del):
     sys.path.pop(__index_del)
 del __sys_path_index_del
+del __user_site_resolve
 ".Replace("`r`n", "`n")
     # use 'ascii' encoding, see above
     $content_sitecustomize | Out-File -FilePath $python_site_path -Encoding "ascii"
