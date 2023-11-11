@@ -69,7 +69,10 @@
 .PARAMETER Path
     Install to this path. Defaults to a descriptive name.
 .PARAMETER Arch
-    Architecture: win32 or amd64. Defatults to the current architecture.
+    Architecture: win32 or amd64. Defaults to the current architecture.
+.PARAMETER SkipExec
+    Do not execute python.exe after installation.
+    This skips the python.exe self-test and the run of `get-pip.py`.
 .PARAMETER UriCheck
     Only check pre-filled URIs (script self-test).
 .LINK
@@ -83,7 +86,8 @@ Param (
     [String] $Path,
     [String] $Version,
     [String] $Arch,
-    [switch] $UriCheck
+    [switch] $UriCheck,
+    [switch] $SkipExec
 )
 
 New-Variable -Name SCRIPT_NAME -Value "PythonEmbed4Win.ps1" -Option ReadOnly -Force
@@ -671,7 +675,8 @@ function Process-Python-Zip
     (
         [Parameter(Mandatory=$true)][String]$path_zip,
         [Parameter(Mandatory=$true)][String]$path_install,
-        [Parameter(Mandatory=$true)][System.Version]$ver
+        [Parameter(Mandatory=$true)][System.Version]$ver,
+        [Parameter(Mandatory=$true)][bool]$skip_exec
     )
 
     # if $path_install does not exist this will raise
@@ -771,6 +776,22 @@ no-warn-script-location = false
     #
     # path to newly installed python.exe
     $python_exe = Join-Path -Path $path_install -ChildPath "python.exe" -Resolve
+    # message to print before function returns
+    $message1 = "`n`n`nNew self-contained Python executable is at "
+    $message2 = "Note that this installation can only run when python.exe is the first command argument.
+Do not try run pip.exe directly from the Scripts directory nor any other program there.
+Run python.exe and import the required program module, e.g.
+$python_exe -m pip
+"
+    if ($skip_exec) {
+        Pop-Location
+        Write-Host -ForegroundColor Yellow -NoNewline $message1
+        Write-Host -ForegroundColor Yellow -BackgroundColor Blue $python_exe
+        Write-Host ""
+        Write-Host -ForegroundColor Yellow -NoNewline $message2
+        return
+    }
+
     Push-Location ~
 
     Write-Host -ForegroundColor Yellow "`nTest python can run:"
@@ -794,8 +815,10 @@ no-warn-script-location = false
     if ($ver -le [System.Version]"3.6") {
         Write-Warning "Python 3.6 cannot run get-pip.py; you will have to install pip manually"
         Pop-Location
-        Write-Host -ForegroundColor Yellow "`n`n`nNew self-contained Python executable is at " -NoNewline
+        Write-Host -ForegroundColor Yellow -NoNewline $message1
         Write-Host -ForegroundColor Yellow -BackgroundColor Blue $python_exe
+        Write-Host ""
+        Write-Host -ForegroundColor Yellow -NoNewline $message2
         return
     }
     $path_getpip = ".\get-pip.py"
@@ -815,15 +838,10 @@ no-warn-script-location = false
     if ($LastExitCode -ne 0) {
         Write-Error "python -m pip list failed"
     }
-    Write-Host -ForegroundColor Yellow "`n`n`nNew self-contained Python executable is at " -NoNewline
-    Write-Host -ForegroundColor Green -BackgroundColor Blue $python_exe
+    Write-Host -ForegroundColor Yellow -NoNewline $message1
+    Write-Host -ForegroundColor Yellow -BackgroundColor Blue $python_exe
     Write-Host ""
-
-    Write-Host -ForegroundColor Yellow "Note that this installation can only run when python.exe is the first command argument.
-Do not try run pip.exe directly from the Scripts directory nor any other program there.
-Run python.exe and import the required program module, e.g.
-$python_exe -m pip
-"
+    Write-Host -ForegroundColor Yellow -NoNewline $message2
 }
 
 function Install-Python
@@ -838,7 +856,8 @@ function Install-Python
         [Parameter(Mandatory=$true)][String]$path_tmp,
         [Parameter(Mandatory=$true)][String]$path_install,
         [Parameter(Mandatory=$true)][URI]$uri_zip,
-        [Parameter(Mandatory=$true)][System.Version]$ver
+        [Parameter(Mandatory=$true)][System.Version]$ver,
+        [Parameter(Mandatory=$true)][bool]$skip_exec
     )
     $name_zip = $uri_zip.Segments[-1]
     $path_zip_tmp = Join-Path -Path $path_tmp -ChildPath $name_zip
@@ -855,7 +874,7 @@ function Install-Python
     }
 
     Write-Information "Installing Python to ${path_install}"
-    Process-Python-Zip $path_zip_tmp $path_install $ver
+    Process-Python-Zip $path_zip_tmp $path_install $ver $skip_exec
 }
 
 function Process-Version {
@@ -952,8 +971,8 @@ try {
         $pyDist = "python-" + $ver.ToString() + "-embed-" + $archs_.ToString()
         $Path = Join-Path -Path "." -ChildPath $pyDist
     }
-    Install-Python $path_tmp1 $Path $uri_zip $ver
-    Write-Host -ForegroundColor Yellow "Installed from" $uri_zip
+    Install-Python $path_tmp1 $Path $uri_zip $ver $SkipExec
+    Write-Host -ForegroundColor Yellow "`nInstalled from" $uri_zip
 } catch {
     $ErrorActionPreference = "Continue"
     Write-Error $_.ScriptStackTrace
