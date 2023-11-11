@@ -934,7 +934,7 @@ try {
                 Write-Error "Unable to process given version ${Version}"
             }
         } else {
-            $ver = $Version
+            $ver = [System.Version]$Version
             Write-Verbose "Version is ${ver}"
         }
         $uri_zip = Create-Python-Zip-URI $URI_PYTHON_VERSIONS $ver $archs_
