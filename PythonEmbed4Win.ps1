@@ -764,22 +764,23 @@ no-warn-script-location = false
     Write-Host -ForegroundColor Yellow "Create Directory" $python_DLL_path
     New-Item -type directory $python_DLL_path
 
-    # 5. basic tests that python can run
+    # 7. basic tests that python can run
     #
     # path to newly installed python.exe
     $python_exe = Join-Path -Path $path_install -ChildPath "python.exe" -Resolve
     Push-Location ~
 
-    Write-Host -ForegroundColor Yellow "`nTest python can run:`n${python_exe} --version`n"
+    Write-Host -ForegroundColor Yellow "`nTest python can run:"
+    Write-Host -ForegroundColor Green "${python_exe} --version`n"
     & $python_exe --version
     if ($LastExitCode -ne 0) {
         Write-Error "Python version test failed"
     }
 
+    $print_sys_path_script = "import sys, pprint; pprint.pprint(sys.path)"
     Write-Host -ForegroundColor Yellow "`nPython print sys.path:"
-    & $python_exe -O -c "import sys, pprint
-pprint.pprint(sys.path)
-"
+    Write-Host -ForegroundColor Green "${python_exe} -c '$print_sys_path_script'`n"
+    & $python_exe -O -c "$print_sys_path_script"
     if ($LastExitCode -ne 0) {
         Write-Error "Python sys.path test failed"
     }
@@ -795,7 +796,8 @@ pprint.pprint(sys.path)
         return
     }
     $path_getpip = ".\get-pip.py"
-    Write-Host -ForegroundColor Yellow "`n`nInstall pip:`n${python_exe} -O ${path_getpip} --no-warn-script-location`n"
+    Write-Host -ForegroundColor Yellow "`n`nInstall pip:"
+    Write-Host -ForegroundColor Green "${python_exe} -O ${path_getpip} --no-warn-script-location`n"
     Download $URI_GETPIP $path_getpip
     & $python_exe -O $path_getpip --no-warn-script-location
     if ($LastExitCode -ne 0) {
@@ -804,13 +806,14 @@ pprint.pprint(sys.path)
 
     Pop-Location
 
-    Write-Host -ForegroundColor Yellow "`nList installed packages:`n${python_exe} -B -m pip list -vv --disable-pip-version-check --no-python-version-warning`n"
+    Write-Host -ForegroundColor Yellow "`nList installed packages:"
+    Write-Host -ForegroundColor Green "${python_exe} -B -m pip list -vv --disable-pip-version-check --no-python-version-warning`n"
     & $python_exe -B -m pip list -vv --disable-pip-version-check --no-python-version-warning
     if ($LastExitCode -ne 0) {
         Write-Error "python -m pip list failed"
     }
     Write-Host -ForegroundColor Yellow "`n`n`nNew self-contained Python executable is at " -NoNewline
-    Write-Host -ForegroundColor Yellow -BackgroundColor Blue $python_exe
+    Write-Host -ForegroundColor Green -BackgroundColor Blue $python_exe
 }
 
 function Install-Python
