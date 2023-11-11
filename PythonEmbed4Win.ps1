@@ -44,11 +44,11 @@
     Inspired by this stackoverflow.com question:
     https://stackoverflow.com/questions/68958635/python-windows-embeddable-package-fails-to-run-no-module-named-pip-the-system/68958636
 
-    BUG: some embed.zip are hardcoded to look for other Windows Python
-         installations, like Python 3.8 series.
+    BUG: Some embed.zip for a few releases are hardcoded to look for other
+         Windows Python installations.
          For example, install Python-3.8.6.msi. Then run this script to
          install python-3.8.4-embed-amd64.zip.
-         The Python 3.8.4 sys.path will be the confusing:
+         The embed Python 3.8.4 sys.path will be the confusing:
              C:\python-embed-3.8.4\python38.zip
              C:\python-msi-install-3.8.6\Lib
              C:\python-msi-install-3.8.6\DLLs
@@ -56,9 +56,12 @@
              C:\python-msi-install-3.8.6
              C:\python-msi-install-3.8.6\lib\site-packages
           The python._pth and sitecustomize.py seem to have no affect.
+          As of November 2023, the latest version of supported Pythons,
+          3.6 to 3.12, appear to behave correctly.
 
     BUG: interleaved console output among `Write-Host` and `python.exe` near
          script completion.
+
 .PARAMETER Version
     Version of Python to install. Leave blank to fetch the latest Python.
     Can pass major.minor.micro or just major.minor, e.g. "3.8.2" or "3.8".
