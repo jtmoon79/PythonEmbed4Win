@@ -5,7 +5,7 @@
 
 
 A [single PowerShell script](PythonEmbed4Win.ps1) to easily and quickly
-create a standalone Python local environment from a Windows `embed.zip`
+create a standalone Python local environment for Windows by downloading the requested `embed.zip`
 distributed file. No prior Python installation is required.
 
 To run:
@@ -19,8 +19,8 @@ PS> Get-Help .\PythonEmbed4Win.ps1 -full
 
 Installing the Python for Windows embedded zip file requires some tedious tweaks.
 See this [gist](https://gist.github.com/jtmoon79/ce63fe655b2f544462e70d8e5ec30ff5).
-This script will handle the tedious tweaks so the new Python installation will
-run in an isolated manner.
+This script will handle the tedious tweaks and updates so the new Python installation will
+run correctly in an isolated manner.
 
 This is similar to a Python Virtual Environment but technically is not.
 It does not require an _activate_ script to set environment variable `VIRTUAL_ENV`
