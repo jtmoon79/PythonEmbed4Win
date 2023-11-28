@@ -804,7 +804,7 @@ $python_exe -m pip
         Write-Error "Python version test failed"
     }
 
-    $print_sys_path_script = "import sys, pprint; pprint.pprint(sys.path)"
+    $print_sys_path_script = 'import pprint, shutil, sys; w = shutil.get_terminal_size((80, 20)).columns or 80; pprint.pprint(sys.path, width=w)'
     Write-Host -ForegroundColor Yellow "`nPython print sys.path:"
     Write-Host -ForegroundColor Green "${python_exe} -c '$print_sys_path_script'`n"
     & $python_exe -O -c "$print_sys_path_script"
