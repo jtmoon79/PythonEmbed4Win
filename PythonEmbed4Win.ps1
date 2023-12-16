@@ -20,26 +20,27 @@
     If only Version major.minor passed then chooses latest major.minor.micro version.
     e.g. passing "-Version 3.8" will choose Python 3.8.12.
 
-    The installation uses the Windows "Embedded" distribution zip file.
+    The installation uses the Windows "Embedded" distribution zip file,
+    e.g. python-3.8.12-embed-amd64.zip
     That zip file distribution requires tedious and non-obvious steps.
-    This script adjusts installation to be runnable and isolated (removes
-    references to python paths outside it's own directory). Also installs latest
-    pip. See https://gist.github.com/jtmoon79/ce63fe655b2f544462e70d8e5ec30ff5
+    This script adjusts the installation to be runnable and isolated (removes
+    references to python paths outside it's own directory).
+    This script also installs latest pip.
 
     Only Python 3.6 and later releases will function correctly.
 
     -UriCheck is merely a self-test to see which URIs for embed.zip files
     are valid.
 
-    This installed Python distribution a Python Virtual Environment but
+    The installed Python distribution is like a Python Virtual Environment but
     technically is not. It does not set environment variable VIRTUAL_ENV nor
     modify the PATH.
-    Use of this installation must call the `python.exe` executable first. Do not
+    Users of this installation must call the `python.exe` executable. Do not
     call other modules by their script entrypoint,
     e.g. for using pip, do not
-        path/to/embed/Scripts/pip.exe install ...
+        C:/path/to/embed/Scripts/pip.exe install ...
     do
-        path/to/embed/Scripts/python.exe -m pip install ...
+        C:/path/to/embed/Scripts/python.exe -m pip install ...
 
     Inspired by this stackoverflow.com question:
     https://stackoverflow.com/questions/68958635/python-windows-embeddable-package-fails-to-run-no-module-named-pip-the-system/68958636
@@ -98,6 +99,7 @@ $SecurityProtocolType = [Net.SecurityProtocolType]::Tls12
 
 Enum Archs {
     # enum names are the literal substrings within the named .zip file
+    # e.g. "win32" from "python-3.8.12-embed-win32.zip"
     win32
     amd64
 }
