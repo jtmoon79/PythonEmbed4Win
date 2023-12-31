@@ -27,7 +27,7 @@
     references to python paths outside it's own directory).
     This script also installs latest pip.
 
-    Only Python 3.6 and later releases will function correctly.
+    Python 3.6 and later is supported.
 
     -UriCheck is merely a self-test to see which URIs for embed.zip files
     are valid.
@@ -68,6 +68,7 @@
     Version of Python to install. Leave blank to fetch the latest Python.
     Can pass major.minor.micro or just major.minor, e.g. "3.8.2" or "3.8".
     If passed only major.minor then the latest major.minor.micro will be chosen.
+    Python 3.6 and later is supported.
 .PARAMETER Path
     Install to this path. Defaults to a descriptive name.
 .PARAMETER Arch
@@ -106,6 +107,7 @@ Enum Archs {
 $arch_default = ${env:PROCESSOR_ARCHITECTURE}.ToLower()
 
 New-Variable -Name URI_GETPIP -Option ReadOnly -Force -Value ([URI] "https://bootstrap.pypa.io/get-pip.py")
+New-Variable -Name URI_GETPIP36 -Option ReadOnly -Force -Value ([URI] "https://bootstrap.pypa.io/pip/3.6/get-pip.py")
 New-Variable -Name URI_PYTHON_VERSIONS -Option ReadOnly -Force -Value ([URI] "https://www.python.org/ftp/python")
 
 function URI-Combine
@@ -829,20 +831,15 @@ Also, this installation cannot create new virtual environments.
     Pop-Location
 
     # 8. get pip
-    if ($ver -le [System.Version]"3.6") {
-        Write-Warning "Python 3.6 cannot run get-pip.py; you will have to install pip manually"
-        Pop-Location
-        Write-Host -ForegroundColor Yellow -NoNewline $message1
-        Write-Host -ForegroundColor Yellow -BackgroundColor Blue $python_exe
-        Write-Host ""
-        Write-Host -ForegroundColor Yellow -NoNewline $message2
-        return
-    }
     # XXX: oddly, the `ensurepip` module is not available in the Windows embed version of Python
     $path_getpip = ".\get-pip.py"
     Write-Host -ForegroundColor Yellow "`n`nInstall pip:"
     Write-Host -ForegroundColor Green "${python_exe} -O ${path_getpip} --no-warn-script-location`n"
-    Download $URI_GETPIP $path_getpip
+    $uri_getpip1 = $URI_GETPIP
+    if ($ver -lt [System.Version]"3.7") {
+        $uri_getpip1 = $URI_GETPIP36
+    }
+    Download $uri_getpip1 $path_getpip
     & $python_exe -O $path_getpip --no-warn-script-location
     if ($LastExitCode -ne 0) {
         Write-Error "Python get-pip.py failed"
