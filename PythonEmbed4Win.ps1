@@ -703,15 +703,16 @@ function Process-Python-Zip
 
     Push-Location -Path $path_install
 
-    # 1. the downloaded zip file contains a zip file, python39.zip. Unzip that
-    $pythonzip = Get-ChildItem -File -Filter "python*.zip" -Depth 1
-    Write-Host -ForegroundColor Yellow "Unzip" $pythonzip
-    Expand-Archive $pythonzip -DestinationPath "python_zip"
-    Remove-Item -Path $pythonzip
-
-    # not all versions of embed.zip have this directory
+    # 1a. not all versions of embed.zip have this directory
     # e.g. https://www.python.org/ftp/python/3.8.4/python-3.8.4-embed-amd64.zip
     New-Item -type Directory "Lib/site-packages"
+
+    # 1b. the downloaded zip file contains a zip file, python39.zip. Unzip that
+    # to under `Lib/`.
+    $pythonzip = Get-ChildItem -File -Filter "python*.zip" -Depth 1
+    Write-Host -ForegroundColor Yellow "Unzip" $pythonzip
+    Expand-Archive $pythonzip -DestinationPath "Lib/python_zip"
+    Remove-Item -Path $pythonzip
 
     # 2. set python._pth file
     $pythonpth = Get-ChildItem -File -Filter "python*._pth" -Depth 1
@@ -724,7 +725,7 @@ function Process-Python-Zip
 .\Scripts
 .
 # standard libraries
-.\python_zip
+.\Lib\python_zip
 # importing site will run sitecustomize.py
 import site".Replace("`r`n", "`n")
     # use 'ascii' encoding, 'utf8' will prepend UTF8 BOM which is seen by Python
