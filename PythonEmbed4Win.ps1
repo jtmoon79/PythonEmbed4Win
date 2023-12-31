@@ -118,7 +118,11 @@ function URI-Combine
     return [URI]($uri.ToString() + $append.ToString())
 }
 
-# Pre-fill known URIs that exist as of Nov. 2023, i.e. return HTTP 200
+# Pre-fill known URIs that exist as of Dec. 2023, i.e. return HTTP 200.
+# This allows skipping some work of scraping URIs from the root page and makes
+# this script a little faster.
+#
+# These can be reviewed by passing `-UriCheck` to this script.
 $URIs_200 = @(
     # *win32.zip
     URI-Combine $URI_PYTHON_VERSIONS '/3.5.0/python-3.5.0-embed-win32.zip'
@@ -185,6 +189,8 @@ $URIs_200 = @(
     URI-Combine $URI_PYTHON_VERSIONS '/3.11.4/python-3.11.4-embed-win32.zip'
     URI-Combine $URI_PYTHON_VERSIONS '/3.11.5/python-3.11.5-embed-win32.zip'
     URI-Combine $URI_PYTHON_VERSIONS '/3.11.6/python-3.11.6-embed-win32.zip'
+    URI-Combine $URI_PYTHON_VERSIONS '/3.12.0/python-3.12.0-embed-win32.zip'
+    URI-Combine $URI_PYTHON_VERSIONS '/3.12.0/python-3.12.1-embed-win32.zip'
     # *amd64.zip
     URI-Combine $URI_PYTHON_VERSIONS '/3.5.0/python-3.5.0-embed-amd64.zip'
     URI-Combine $URI_PYTHON_VERSIONS '/3.5.1/python-3.5.1-embed-amd64.zip'
@@ -255,7 +261,8 @@ $URIs_200 = @(
     URI-Combine $URI_PYTHON_VERSIONS '/3.11.6/python-3.11.6-embed-amd64.zip'
     URI-Combine $URI_PYTHON_VERSIONS '/3.12.0/python-3.12.0-embed-amd64.zip'
 )
-# Pre-fill known URIs that do not exist as of Nov. 2023, i.e. return HTTP 503
+
+# Pre-fill known URIs that do not exist as of Dec. 2023, i.e. return HTTP 503.
 $URIs_503 = @(
     # *win32.zip
     URI-Combine $URI_PYTHON_VERSIONS '/3.0.1/python-3.0.1-embed-win32.zip'
