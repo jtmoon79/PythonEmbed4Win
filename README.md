@@ -31,11 +31,16 @@ Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope Process
 
 Installing the Python for Windows embedded zip file requires some tedious tweaks.
 See this [gist](https://gist.github.com/jtmoon79/ce63fe655b2f544462e70d8e5ec30ff5).
-This script will handle the tedious tweaks and updates so the new Python installation will
-run correctly in an isolated manner.
+This script will handle the tedious tweaks and updates so the new Python
+installation will run correctly in an isolated manner.
 
 This is similar to a Python Virtual Environment but technically is not.
 It does not require an _activate_ script to set environment variable `VIRTUAL_ENV`
 or modify the `PATH`. It will run isolated without environment modifications.
+
+One disadvantage is that a Windows embed Python cannot create a functioning
+virtual environment. They will be created but `virtualenv` and `venv`
+selectively copy files from the source and do not copy necessary library files
+unique to Windows embed Python.
 
 Derived from [this StackOverflow answer](https://stackoverflow.com/a/68958636/471376).

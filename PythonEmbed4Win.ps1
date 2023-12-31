@@ -797,6 +797,8 @@ no-warn-script-location = false
 Do not try run pip.exe directly from the Scripts directory nor any other program there.
 Run python.exe and import the required program module, e.g.
 $python_exe -m pip
+
+Also, this installation cannot create new virtual environments.
 "
     if ($skip_exec) {
         Pop-Location
