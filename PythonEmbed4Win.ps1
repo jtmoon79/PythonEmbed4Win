@@ -838,6 +838,7 @@ Also, this installation cannot create new virtual environments.
         Write-Host -ForegroundColor Yellow -NoNewline $message2
         return
     }
+    # XXX: oddly, the `ensurepip` module is not available in the Windows embed version of Python
     $path_getpip = ".\get-pip.py"
     Write-Host -ForegroundColor Yellow "`n`nInstall pip:"
     Write-Host -ForegroundColor Green "${python_exe} -O ${path_getpip} --no-warn-script-location`n"
