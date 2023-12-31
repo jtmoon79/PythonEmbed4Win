@@ -84,7 +84,7 @@
 #>
 [Cmdletbinding()]
 Param (
-    [String] $Path,
+    [System.IO.FileInfo] $Path,
     [String] $Version,
     # TODO: how to set a script Param to custom Enum type `Archs`?
     #       placing the definition of `Archs` before this Param declaration
@@ -380,6 +380,7 @@ $URIs_503 = @(
 )
 
 function New-TemporaryDirectory {
+    [OutputType([System.IO.FileInfo])]
     Param([String]$extra)
     Join-Path -Path $([System.IO.Path]::GetTempPath()) -ChildPath $extra.ToString() `
         | ForEach-Object { New-Item -Path $_ -ItemType Directory -Force }
@@ -437,7 +438,7 @@ function Download
     #>
     Param(
         [Parameter(Mandatory=$true)][URI]$uri,
-        [Parameter(Mandatory=$true)][String]$dest
+        [Parameter(Mandatory=$true)][System.IO.FileInfo]$dest
     )
 
     $start_time = Get-Date
@@ -562,13 +563,13 @@ function Scrape-Python-Versions
     Param
     (
         [Parameter(Mandatory=$true)][URI]$uri,
-        [Parameter(Mandatory=$true)][String]$path_tmp,
+        [Parameter(Mandatory=$true)][System.IO.DirectoryInfo]$path_tmp,
         [Parameter(Mandatory=$true)][Archs]$arch_install,
         [Parameter(Mandatory=$false)][Bool]$onlyLive=$false
     )
     Write-Verbose ("Scraping all available versions of Python at " + $uri.ToString())
 
-    $python_versions_html = Join-Path -Path $path_tmp -ChildPath "python_versions.html"
+    $python_versions_html = [System.IO.FileInfo] (Join-Path -Path $path_tmp -ChildPath "python_versions.html")
     if(-not (Test-Path $python_versions_html))
     {
         Download $uri $python_versions_html
@@ -678,8 +679,8 @@ function Process-Python-Zip
 
     Param
     (
-        [Parameter(Mandatory=$true)][String]$path_zip,
-        [Parameter(Mandatory=$true)][String]$path_install,
+        [Parameter(Mandatory=$true)][System.IO.FileInfo]$path_zip,
+        [Parameter(Mandatory=$true)][System.IO.FileInfo]$path_install,
         [Parameter(Mandatory=$true)][System.Version]$ver,
         [Parameter(Mandatory=$true)][bool]$skip_exec
     )
@@ -858,14 +859,14 @@ function Install-Python
     #>
     Param
     (
-        [Parameter(Mandatory=$true)][String]$path_tmp,
-        [Parameter(Mandatory=$true)][String]$path_install,
+        [Parameter(Mandatory=$true)][System.IO.DirectoryInfo]$path_tmp,
+        [Parameter(Mandatory=$true)][System.IO.FileInfo]$path_install,
         [Parameter(Mandatory=$true)][URI]$uri_zip,
         [Parameter(Mandatory=$true)][System.Version]$ver,
         [Parameter(Mandatory=$true)][bool]$skip_exec
     )
     $name_zip = $uri_zip.Segments[-1]
-    $path_zip_tmp = Join-Path -Path $path_tmp -ChildPath $name_zip
+    $path_zip_tmp = [System.IO.FileInfo] (Join-Path -Path $path_tmp -ChildPath $name_zip)
 
     Download $uri_zip $path_zip_tmp
 
@@ -974,7 +975,7 @@ try {
     if (-not $Path) {
         # user did not pass -Path so create a sensible one
         $pyDist = "python-" + $ver.ToString() + "-embed-" + $archs_.ToString()
-        $Path = Join-Path -Path "." -ChildPath $pyDist
+        $Path = [System.IO.FileInfo] (Join-Path -Path "." -ChildPath $pyDist)
     }
     Install-Python $path_tmp1 $Path $uri_zip $ver $SkipExec
     Write-Host -ForegroundColor Yellow "`nInstalled from" $uri_zip
