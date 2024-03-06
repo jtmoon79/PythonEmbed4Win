@@ -20,7 +20,8 @@ For detailed help:
 Get-Help .\PythonEmbed4Win.ps1 -full
 ```
 
-If you get an error `PythonEmbed4Win.ps1 cannot be loaded because running scripts is disabled on this system` then run:
+If you get the error<br/> `PythonEmbed4Win.ps1 cannot be loaded because running scripts is disabled on this system`<br/>
+then run:
 
 ```powershell
 Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope Process
