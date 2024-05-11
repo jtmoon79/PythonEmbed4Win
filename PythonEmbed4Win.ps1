@@ -742,13 +742,14 @@ function Process-Python-Zip
     $content_pythonpth = "# python._pth
 #
 # this file was added by PythonEmbed4Win.ps1
+.\Lib\python_zip
+.\DLLs
+.\Lib
 .\Scripts
 .
-# standard libraries
-.\Lib\python_zip
-# importing site will run sitecustomize.py
-import site".Replace("`r`n", "`n")
-    # use 'ascii' encoding, 'utf8' will prepend UTF8 BOM which is seen by Python
+.\Lib\site-packages
+".Replace("`r`n", "`n")
+    # use -Encoding 'ascii'; 'utf8' will prepend UTF8 BOM which is seen by Python
     # as a path (and Python then adds a junk path to `sys.path`)
     $content_pythonpth | Out-File -Force -FilePath $pythonpth -Encoding "ascii"
     Print-File-Nicely $pythonpth
