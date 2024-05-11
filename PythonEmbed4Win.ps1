@@ -198,8 +198,13 @@ $URIs_200 = @(
     URI-Combine $URI_PYTHON_VERSIONS '/3.11.4/python-3.11.4-embed-win32.zip'
     URI-Combine $URI_PYTHON_VERSIONS '/3.11.5/python-3.11.5-embed-win32.zip'
     URI-Combine $URI_PYTHON_VERSIONS '/3.11.6/python-3.11.6-embed-win32.zip'
+    URI-Combine $URI_PYTHON_VERSIONS '/3.11.7/python-3.11.7-embed-win32.zip'
+    URI-Combine $URI_PYTHON_VERSIONS '/3.11.8/python-3.11.8-embed-win32.zip'
+    URI-Combine $URI_PYTHON_VERSIONS '/3.11.9/python-3.11.9-embed-win32.zip'
     URI-Combine $URI_PYTHON_VERSIONS '/3.12.0/python-3.12.0-embed-win32.zip'
-    URI-Combine $URI_PYTHON_VERSIONS '/3.12.0/python-3.12.1-embed-win32.zip'
+    URI-Combine $URI_PYTHON_VERSIONS '/3.12.1/python-3.12.1-embed-win32.zip'
+    URI-Combine $URI_PYTHON_VERSIONS '/3.12.2/python-3.12.2-embed-win32.zip'
+    URI-Combine $URI_PYTHON_VERSIONS '/3.12.3/python-3.12.3-embed-win32.zip'
     # *amd64.zip
     URI-Combine $URI_PYTHON_VERSIONS '/3.5.0/python-3.5.0-embed-amd64.zip'
     URI-Combine $URI_PYTHON_VERSIONS '/3.5.1/python-3.5.1-embed-amd64.zip'
@@ -268,7 +273,13 @@ $URIs_200 = @(
     URI-Combine $URI_PYTHON_VERSIONS '/3.11.4/python-3.11.4-embed-amd64.zip'
     URI-Combine $URI_PYTHON_VERSIONS '/3.11.5/python-3.11.5-embed-amd64.zip'
     URI-Combine $URI_PYTHON_VERSIONS '/3.11.6/python-3.11.6-embed-amd64.zip'
+    URI-Combine $URI_PYTHON_VERSIONS '/3.11.7/python-3.11.7-embed-amd64.zip'
+    URI-Combine $URI_PYTHON_VERSIONS '/3.11.8/python-3.11.8-embed-amd64.zip'
+    URI-Combine $URI_PYTHON_VERSIONS '/3.11.9/python-3.11.9-embed-amd64.zip'
     URI-Combine $URI_PYTHON_VERSIONS '/3.12.0/python-3.12.0-embed-amd64.zip'
+    URI-Combine $URI_PYTHON_VERSIONS '/3.12.1/python-3.12.1-embed-amd64.zip'
+    URI-Combine $URI_PYTHON_VERSIONS '/3.12.2/python-3.12.2-embed-amd64.zip'
+    URI-Combine $URI_PYTHON_VERSIONS '/3.12.3/python-3.12.3-embed-amd64.zip'
 )
 
 # Pre-fill known URIs that do not exist as of Dec. 2023, i.e. return HTTP 503.
