@@ -797,7 +797,7 @@ del __user_site_resolve
 
 [install]
 # this embed installation does not add itself to the shell environment PATH; do not warn about that
-no-warn-script-location = false
+no-warn-script-location = true
 ".Replace("`r`n", "`n")
     # use 'ascii' encoding, see above
     $content_pip_ini | Out-File -FilePath $python_pip_ini -Encoding "ascii"
