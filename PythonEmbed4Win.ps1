@@ -61,9 +61,6 @@
           3.6 to 3.12, appear to behave correctly. It only affects a few
           intermediate releases.
 
-    BUG: interleaved console output among `Write-Host` and `python.exe` near
-         script completion.
-
 .PARAMETER Version
     Version of Python to install. Leave blank to fetch the latest Python.
     Can pass major.minor.micro or just major.minor, e.g. "3.8.2" or "3.8".
