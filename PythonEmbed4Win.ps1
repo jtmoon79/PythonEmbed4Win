@@ -99,6 +99,9 @@ Param (
     [switch] $UriCheck
 )
 
+$stopWatch = New-Object -TypeName System.Diagnostics.Stopwatch
+$stopWatch.Start()
+
 New-Variable -Name SCRIPT_NAME -Value "PythonEmbed4Win.ps1" -Option ReadOnly -Force
 $SecurityProtocolType = [Net.SecurityProtocolType]::Tls12
 
@@ -992,6 +995,8 @@ try {
     }
     Install-Python $path_tmp1 $Path $uri_zip $ver $SkipExec
     Write-Host -ForegroundColor Yellow "`nInstalled from" $uri_zip
+
+    Write-Host "`nCompleted in" $stopWatch.Elapsed.ToString()
 } catch {
     $ErrorActionPreference = "Continue"
     Write-Error $_.ScriptStackTrace
