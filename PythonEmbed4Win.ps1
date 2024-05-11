@@ -82,13 +82,20 @@
 #>
 [Cmdletbinding()]
 Param (
+    [Parameter(ParameterSetName = 'Install')]
     [System.IO.FileInfo] $Path,
+    [Parameter(ParameterSetName = 'Install')]
     [String] $Version,
     # TODO: how to set a script Param to custom Enum type `Archs`?
     #       placing the definition of `Archs` before this Param declaration
     #       will cause an error.
+    [Parameter(ParameterSetName = 'Install')]
+    [Parameter(ParameterSetName = 'UriCheck')]
+    [ValidateSet('win32','amd64')]
     [String] $Arch,
+    [Parameter(ParameterSetName = 'Install')]
     [switch] $SkipExec,
+    [Parameter(ParameterSetName = 'UriCheck')]
     [switch] $UriCheck
 )
 
