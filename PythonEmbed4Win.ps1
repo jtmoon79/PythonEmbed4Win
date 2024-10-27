@@ -80,7 +80,7 @@
 .NOTES
     Author: James Thomas Moon
 #>
-[Cmdletbinding()]
+[Cmdletbinding(DefaultParameterSetName = 'Install')]
 Param (
     [Parameter(ParameterSetName = 'Install')]
     [System.IO.FileInfo] $Path,
