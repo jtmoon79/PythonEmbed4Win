@@ -206,6 +206,9 @@ $URIs_200 = @(
     URI-Combine $URI_PYTHON_VERSIONS '/3.12.1/python-3.12.1-embed-win32.zip'
     URI-Combine $URI_PYTHON_VERSIONS '/3.12.2/python-3.12.2-embed-win32.zip'
     URI-Combine $URI_PYTHON_VERSIONS '/3.12.3/python-3.12.3-embed-win32.zip'
+    URI-Combine $URI_PYTHON_VERSIONS '/3.12.4/python-3.12.4-embed-win32.zip'
+    URI-Combine $URI_PYTHON_VERSIONS '/3.12.5/python-3.12.5-embed-win32.zip'
+    URI-Combine $URI_PYTHON_VERSIONS '/3.13.0/python-3.13.0-embed-win32.zip'
     # amd64
     URI-Combine $URI_PYTHON_VERSIONS '/3.5.0/python-3.5.0-embed-amd64.zip'
     URI-Combine $URI_PYTHON_VERSIONS '/3.5.1/python-3.5.1-embed-amd64.zip'
@@ -281,6 +284,9 @@ $URIs_200 = @(
     URI-Combine $URI_PYTHON_VERSIONS '/3.12.1/python-3.12.1-embed-amd64.zip'
     URI-Combine $URI_PYTHON_VERSIONS '/3.12.2/python-3.12.2-embed-amd64.zip'
     URI-Combine $URI_PYTHON_VERSIONS '/3.12.3/python-3.12.3-embed-amd64.zip'
+    URI-Combine $URI_PYTHON_VERSIONS '/3.12.4/python-3.12.4-embed-amd64.zip'
+    URI-Combine $URI_PYTHON_VERSIONS '/3.12.5/python-3.12.5-embed-amd64.zip'
+    URI-Combine $URI_PYTHON_VERSIONS '/3.13.0/python-3.13.0-embed-amd64.zip'
     # arm64
     URI-Combine $URI_PYTHON_VERSIONS '/3.9.7/python-3.9.7-embed-arm64.zip'
     URI-Combine $URI_PYTHON_VERSIONS '/3.9.8/python-3.9.8-embed-arm64.zip'
