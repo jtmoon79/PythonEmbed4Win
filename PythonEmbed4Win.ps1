@@ -593,7 +593,8 @@ function Scrape-Python-Versions
         [Parameter(Mandatory=$true)][URI]$uri,
         [Parameter(Mandatory=$true)][System.IO.DirectoryInfo]$path_tmp,
         [Parameter(Mandatory=$true)][Archs]$arch_install,
-        [Parameter(Mandatory=$false)][Bool]$onlyLive=$false
+        [Parameter()][AllowNull()][System.Version]$version_filter=$null,
+        [Parameter()][Bool]$onlyLive=$false
     )
     Write-Verbose ("Scraping all available versions of Python at " + $uri.ToString())
 
@@ -643,6 +644,33 @@ function Scrape-Python-Versions
     # check which scraped versions are valid URIs
     $links = [System.Collections.Hashtable]::new()
     foreach ($py_version in $versions_scraped) {
+        if ($null -ne $version_filter) {
+            # only check within the passed filter
+            if (($version_filter.Build -ne -1)) {
+                if (($version_filter.Major -ne $py_version.Major) -or `
+                    ($version_filter.Minor -ne $py_version.Minor) -or `
+                    ($version_filter.Build -ne $py_version.Build) `
+                ) {
+                    Write-Verbose "Skip confirming $py_version; not within filter $version_filter (M,m,b)"
+                    continue
+                }
+            } elseif ($version_filter.Minor -ne -1) {
+                if (($version_filter.Major -ne $py_version.Major) -or `
+                    ($version_filter.Minor -ne $py_version.Minor)`
+                ) {
+                    Write-Verbose "Skip confirming $py_version; not within filter $version_filter (M,m)"
+                    continue
+                }
+            } elseif ($version_filter.Major -ne -1) {
+                if ($version_filter.Major -ne $py_version.Major) {
+                    Write-Verbose "Skip confirming $py_version; not within filter $version_filter (M)"
+                    continue
+                }
+            } else {
+                Write-Warning "Bad version filter $version_filter"
+            }
+        }
+        Write-Verbose "Confirming scrape $py_version ..."
         $uri_file = Create-Python-Zip-URI $URI_PYTHON_VERSIONS $py_version $arch_install
         if (Confirm-URI-Python-Version $uri_file -onlyLive $onlyLive) {
             Write-Verbose "Add link '$uri_file'"
@@ -957,19 +985,31 @@ try {
     }
     $archs_ = [Archs]$Arch
 
+    $version_filter = $null
+    if (-not ([String]::IsNullOrEmpty($Version))) {
+        $version_filter = [System.Version] $Version
+    }
+
     if ($UriCheck) {
         Check-Premade-Uris $archs_
         Write-Host "Check live scraped URIs for" $archs_.ToString()
         Write-Host "(These should match the previous predefined URI settings)"
         $path_tmp1 = New-TemporaryDirectory -extra ("python-latest-" + $archs_.ToString())
-        $version_links = Scrape-Python-Versions $URI_PYTHON_VERSIONS $path_tmp1 $archs_ $True
+        $version_links = Scrape-Python-Versions $URI_PYTHON_VERSIONS $path_tmp1 $archs_ $version_filter $True
+        if ($version_links.Count -eq 0) {
+            Write-Warning "Failed to scrape any versions from '$URI_PYTHON_VERSIONS'"
+        }
         return
     }
 
     if ([String]::IsNullOrEmpty($Version)) {
         $path_tmp1 = New-TemporaryDirectory -extra ("python-latest-" + $archs_.ToString())
         Write-Verbose "Temporary Directory ${path_tmp1}"
-        $version_links = Scrape-Python-Versions $URI_PYTHON_VERSIONS $path_tmp1 $archs_
+        $version_links = Scrape-Python-Versions $URI_PYTHON_VERSIONS $path_tmp1 $archs_ $version_filter
+        if ($version_links.Count -eq 0) {
+            Write-Warning "Failed to scrape any versions from '$URI_PYTHON_VERSIONS'"
+            return
+        }
         $ver = [System.Version]($version_links.keys | Sort-Object | Select-Object -Last 1)
         Write-Verbose "Version set to latest ${ver}"
         Write-Information ("Determined the latest version of Python to be " + $ver.ToString())
@@ -983,7 +1023,11 @@ try {
         $path_tmp1 = New-TemporaryDirectory -extra ("python-" + $Version + "-" + $archs_.ToString())
         Write-Verbose "Temporary Directory ${path_tmp1}"
         if ($ver.Minor -eq -1 -or $ver.Build -eq -1) {
-            $version_links = Scrape-Python-Versions $URI_PYTHON_VERSIONS $path_tmp1 $archs_
+            $version_links = Scrape-Python-Versions $URI_PYTHON_VERSIONS $path_tmp1 $archs_ $version_filter
+            if ($version_links.Count -eq 0) {
+                Write-Warning "Failed to scrape any versions from '$URI_PYTHON_VERSIONS'"
+                return
+            }
             $versions = @($version_links.keys)
             $ver = Process-Version ([System.Version] $ver) $versions
             Write-Verbose "Version set to ${ver}"
