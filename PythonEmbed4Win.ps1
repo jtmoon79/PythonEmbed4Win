@@ -69,7 +69,7 @@
 .PARAMETER Path
     Install to this path. Defaults to a descriptive name.
 .PARAMETER Arch
-    Architecture: win32 or amd64. Defaults to the current architecture.
+    Architecture: win32 or amd64 or arm64. Defaults to the current architecture.
 .PARAMETER SkipExec
     Do not execute python.exe after installation.
     This skips the python.exe self-test and the run of `get-pip.py`.
@@ -91,7 +91,7 @@ Param (
     #       will cause an error.
     [Parameter(ParameterSetName = 'Install')]
     [Parameter(ParameterSetName = 'UriCheck')]
-    [ValidateSet('win32','amd64')]
+    [ValidateSet('win32','amd64','arm64')]
     [String] $Arch,
     [Parameter(ParameterSetName = 'Install')]
     [switch] $SkipExec,
@@ -110,6 +110,7 @@ Enum Archs {
     # e.g. "win32" from "python-3.8.12-embed-win32.zip"
     win32
     amd64
+    arm64
 }
 $arch_default = ${env:PROCESSOR_ARCHITECTURE}.ToLower()
 
