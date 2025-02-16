@@ -92,6 +92,7 @@
 Param (
     [Parameter(ParameterSetName = 'Install')]
     [Parameter(ParameterSetName = 'ZipFile')]
+    [Parameter(ValueFromPipeline=$true)]
     [String] $Path,
     [Parameter(ParameterSetName = 'Install')]
     [Parameter(ParameterSetName = 'UriCheck')]
