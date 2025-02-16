@@ -1,7 +1,7 @@
 # PythonEmbed4Win
 
 ![PowerShell 5](https://img.shields.io/badge/5-blue?logo=Powershell&logoColor=blue&label=PowerShell&labelColor=white&color=blue) ![PowerShell 7](https://img.shields.io/badge/7-blue?logo=Powershell&logoColor=purple&label=PowerShell&labelColor=white&color=purple)
-![Python Versions](https://img.shields.io/badge/3.6%20%7C%203.7%20%7C%203.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue?logo=Python&logoColor=yellow&label=Python&labelColor=blue&color=white)
+![Python Versions](https://img.shields.io/badge/3.6%20%7C%203.7%20%7C%203.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue?logo=Python&logoColor=yellow&label=Python&labelColor=blue&color=white)
 
 A [single PowerShell script](PythonEmbed4Win.ps1) to easily and quickly
 create a standalone Python local environment for Windows by downloading the requested `embed.zip`
