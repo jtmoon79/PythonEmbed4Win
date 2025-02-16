@@ -85,6 +85,7 @@ Param (
     [Parameter(ParameterSetName = 'Install')]
     [System.IO.FileInfo] $Path,
     [Parameter(ParameterSetName = 'Install')]
+    [Parameter(ParameterSetName = 'UriCheck')]
     [String] $Version,
     # TODO: how to set a script Param to custom Enum type `Archs`?
     #       placing the definition of `Archs` before this Param declaration
@@ -95,6 +96,8 @@ Param (
     [String] $Arch,
     [Parameter(ParameterSetName = 'Install')]
     [switch] $SkipExec,
+    [Parameter(ParameterSetName = 'UriCheck', Mandatory)]
+    [switch] $UriCheck,
     [Parameter(ParameterSetName = 'UriCheck')]
     [switch] $UriCheck
 )
@@ -112,7 +115,13 @@ Enum Archs {
     amd64
     arm64
 }
-$arch_default = ${env:PROCESSOR_ARCHITECTURE}.ToLower()
+# XXX: how to expand `Archs` into an array of string?
+$Archs_Strings = @("win32", "amd64", "arm64")
+
+$arch_default = "amd64"
+if ("" -ne "${env:PROCESSOR_ARCHITECTURE}") {
+    $arch_default = ${env:PROCESSOR_ARCHITECTURE}.ToLower()
+}
 
 New-Variable -Name URI_GETPIP -Option ReadOnly -Force -Value ([URI] "https://bootstrap.pypa.io/get-pip.py")
 New-Variable -Name URI_GETPIP36 -Option ReadOnly -Force -Value ([URI] "https://bootstrap.pypa.io/pip/3.6/get-pip.py")
@@ -1151,16 +1160,36 @@ try {
     }
 
     if ($UriCheck) {
-        Check-Premade-Uris $archs_
-        Write-Host "Check live scraped URIs for" $archs_.ToString()
-        Write-Host "(These should match the previous predefined URI settings)"
-        $path_tmp1 = New-TemporaryDirectory -extra ("python-latest-" + $archs_.ToString())
-        $version_links = Scrape-Python-Versions $URI_PYTHON_VERSIONS $path_tmp1 $archs_ $version_filter $True
-        if ($version_links.Count -eq 0) {
-            Write-Warning "Failed to scrape any versions from '$URI_PYTHON_VERSIONS'"
+        if ([String]::IsNullOrEmpty($Arch)) {
+            $arches_check = $Archs_Strings
+        } else {
+            $arches_check = @($Arch)
+        }
+        foreach ($arch_c in $arches_check) {
+            if (-not [Archs].GetEnumNames().Contains($arch_c)) {
+                Write-Error ("Unknown -arch '${arch_c}', must be one of " + [Archs].GetEnumNames())
+            }
+            $arch_ = [Archs]$arch_c
+            Check-Premade-Uris $arch_
+            Write-Host "Check live scraped URIs for" $arch_.ToString()
+            Write-Host "(These should match the previous predefined URI settings)"
+            $path_tmp1 = New-TemporaryDirectory -extra ("python-latest-" + $arch_.ToString())
+            $version_links = Scrape-Python-Versions $URI_PYTHON_VERSIONS $path_tmp1 $arch_ $version_filter $True
+            if ($version_links.Count -eq 0) {
+                Write-Warning "Failed to scrape any versions from '$URI_PYTHON_VERSIONS'"
+            }
         }
         return
     }
+
+    if (-not $Arch) {
+        $Arch = $arch_default
+    }
+    if (-not [Archs].GetEnumNames().Contains($Arch)) {
+        Write-Error ("Unknown -arch '${arch}', must be one of " + [Archs].GetEnumNames())
+    }
+
+    $archs_ = [Archs]$Arch
 
     if ([String]::IsNullOrEmpty($Version)) {
         $path_tmp1 = New-TemporaryDirectory -extra ("python-latest-" + $archs_.ToString())
