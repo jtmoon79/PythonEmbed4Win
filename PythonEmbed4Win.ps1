@@ -75,6 +75,8 @@
     This skips the python.exe self-test and the run of `get-pip.py`.
 .PARAMETER UriCheck
     Only check pre-filled URIs (script self-test). Does not install Python.
+.PARAMETER trace
+    Turn on debug tracing.
 .LINK
     https://github.com/jtmoon79/PythonEmbed4Win
 .NOTES
@@ -101,6 +103,10 @@ Param (
     [Parameter(ParameterSetName = 'UriCheck')]
     [switch] $UriCheck
 )
+
+if ($trace) {
+    Set-PSDebug -Trace 1
+}
 
 $stopWatch = New-Object -TypeName System.Diagnostics.Stopwatch
 $stopWatch.Start()
@@ -1248,6 +1254,8 @@ try {
     Write-Error $_.ScriptStackTrace
     Write-Error -Message $_.Exception.Message
 } finally {
+    # XXX: would be ideal to restore PS-Debug value instead of overwriting
+    Set-PSDebug -Trace 0
     Set-StrictMode -Off
     if ($null -ne $path_tmp1) {
         Remove-Item -Recurse $path_tmp1 -ErrorAction Continue
