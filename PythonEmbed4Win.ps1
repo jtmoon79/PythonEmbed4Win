@@ -29,8 +29,11 @@
 
     Python 3.6 and later is supported.
 
+    -ZipFile allows installing a local .zip file.
+     The .zip file must have an embedded version string within the basename.
+
     -UriCheck is merely a self-test to see which URIs for embed.zip files
-    are valid.
+     are valid.
 
     The installed Python distribution is like a Python Virtual Environment but
     technically is not. It does not set environment variable VIRTUAL_ENV nor
@@ -76,7 +79,8 @@
 .PARAMETER UriCheck
     Only check pre-filled URIs (script self-test). Does not install Python.
 .PARAMETER ZipFile
-    Just insall the ZipFile at this path.
+    Install this local .zip file. Does not download. The .zip file must have a version string
+    embedded in the basename.
 .PARAMETER trace
     Turn on debug tracing.
 .LINK
