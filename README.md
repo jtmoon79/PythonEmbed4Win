@@ -42,21 +42,21 @@ Derived from [this StackOverflow answer](https://stackoverflow.com/a/68958636/47
 ## help
 
 ```plain-text
-PS> Get-Help .\PythonEmbed4Win.ps1 -full
+PS> Get-Help ./PythonEmbed4Win.ps1 -full
 
 NAME
-    /PythonEmbed4Win.ps1
+    ./PythonEmbed4Win.ps1
     
 SYNOPSIS
     Quickly setup a portable python environment for Windows using an embed.zip.
     
     
 SYNTAX
-    /PythonEmbed4Win.ps1 [-Path <String>] [-Version <String>] [-Arch <String>] [-SkipExec] [-trace] [<CommonParameters>]
+    ./PythonEmbed4Win.ps1 [-Path <String>] [-Version <String>] [-Arch <String>] [-SkipExec] [-trace] [<CommonParameters>]
+
+    ./PythonEmbed4Win.ps1 -ZipFile <String> [-Path <String>] [-SkipExec] [-trace] [<CommonParameters>]
     
-    /PythonEmbed4Win.ps1 [-Path <String>] [-SkipExec] -ZipFile <String> [-trace] [<CommonParameters>]
-    
-    /PythonEmbed4Win.ps1 [[-Path] <String>] [-Version <String>] [-Arch <String>] -UriCheck [-trace] [<CommonParameters>]
+    ./PythonEmbed4Win.ps1 -UriCheck [[-Path] <String>] [-Version <String>] [-Arch <String>] [-trace] [<CommonParameters>]
     
     
 DESCRIPTION
@@ -114,6 +114,25 @@ DESCRIPTION
     
 
 PARAMETERS
+    -ZipFile <String>
+        Install this local .zip file. Does not download. The .zip file must have a version string
+        embedded in the basename.
+        
+        Required?                    true
+        Position?                    named
+        Default value                
+        Accept pipeline input?       false
+        Accept wildcard characters?  false
+        
+    -UriCheck [<SwitchParameter>]
+        Only check pre-filled URIs (script self-test). Does not install Python.
+        
+        Required?                    true
+        Position?                    named
+        Default value                False
+        Accept pipeline input?       false
+        Accept wildcard characters?  false
+        
     -Path <String>
         Install to this path. Defaults to a descriptive name.
         Default pipeline value and default argument value.
@@ -155,25 +174,6 @@ PARAMETERS
         Accept pipeline input?       false
         Accept wildcard characters?  false
         
-    -UriCheck [<SwitchParameter>]
-        Only check pre-filled URIs (script self-test). Does not install Python.
-        
-        Required?                    true
-        Position?                    named
-        Default value                False
-        Accept pipeline input?       false
-        Accept wildcard characters?  false
-        
-    -ZipFile <String>
-        Install this local .zip file. Does not download. The .zip file must have a version string
-        embedded in the basename.
-        
-        Required?                    true
-        Position?                    named
-        Default value                
-        Accept pipeline input?       false
-        Accept wildcard characters?  false
-        
     -trace [<SwitchParameter>]
         Turn on debug tracing.
         
@@ -195,8 +195,11 @@ OUTPUTS
     
 NOTES
     
+    
         Author: James Thomas Moon
+    
     
 RELATED LINKS
     https://github.com/jtmoon79/PythonEmbed4Win
+
 ```

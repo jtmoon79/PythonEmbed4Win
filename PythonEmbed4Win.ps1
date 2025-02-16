@@ -91,6 +91,10 @@
 #>
 [Cmdletbinding(DefaultParameterSetName = 'Install')]
 Param (
+    [Parameter(ParameterSetName = 'ZipFile', Mandatory=$true)]
+    [String] $ZipFile,
+    [Parameter(ParameterSetName = 'UriCheck', Mandatory=$true)]
+    [switch] $UriCheck,
     [Parameter(ParameterSetName = 'Install')]
     [Parameter(ParameterSetName = 'ZipFile')]
     [Parameter(ValueFromPipeline=$true, Position=0)]
@@ -108,10 +112,6 @@ Param (
     [Parameter(ParameterSetName = 'Install')]
     [Parameter(ParameterSetName = 'ZipFile')]
     [switch] $SkipExec,
-    [Parameter(ParameterSetName = 'UriCheck', Mandatory=$true)]
-    [switch] $UriCheck,
-    [Parameter(ParameterSetName = 'ZipFile', Mandatory=$true)]
-    [String] $ZipFile,
     [Parameter(ParameterSetName = 'Install')]
     [Parameter(ParameterSetName = 'UriCheck')]
     [Parameter(ParameterSetName = 'ZipFile')]
