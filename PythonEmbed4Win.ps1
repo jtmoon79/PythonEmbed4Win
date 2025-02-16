@@ -71,6 +71,7 @@
     Python 3.6 and later is supported.
 .PARAMETER Path
     Install to this path. Defaults to a descriptive name.
+    Default pipeline value and default argument value.
 .PARAMETER Arch
     Architecture: win32 or amd64 or arm64. Defaults to the current architecture.
 .PARAMETER SkipExec
@@ -92,7 +93,7 @@
 Param (
     [Parameter(ParameterSetName = 'Install')]
     [Parameter(ParameterSetName = 'ZipFile')]
-    [Parameter(ValueFromPipeline=$true)]
+    [Parameter(ValueFromPipeline=$true, Position=0)]
     [String] $Path,
     [Parameter(ParameterSetName = 'Install')]
     [Parameter(ParameterSetName = 'UriCheck')]
