@@ -44,6 +44,8 @@ One disadvantage is that a Windows embed Python cannot create a functioning
 virtual environment. They will be created but `virtualenv` and `venv`
 selectively copy files from the source and do not copy necessary library files
 unique to an Windows embed Python.
+Additionally some pypi libraries with complex external C module dependencies may crash during initialization. 
+The good news is you'll know immediately if the Python embed installation created by this script will work for you.
 
 Derived from [this StackOverflow answer](https://stackoverflow.com/a/68958636/471376).
 
