@@ -24,7 +24,8 @@ If you get the error:
 then run:
 
 ```powershell
-Set-ExecutionPolicy -ExecutionPolicy Unrestricted `
+Set-ExecutionPolicy `
+  -ExecutionPolicy Unrestricted `
   -Scope Process
 ```
 
