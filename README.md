@@ -10,15 +10,21 @@ distributed file. No prior Python installation is required.
 ## Download and run
 
 ```powershell
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/jtmoon79/PythonEmbed4Win/main/PythonEmbed4Win.ps1" -OutFile "PythonEmbed4Win.ps1"
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/jtmoon79/PythonEmbed4Win/main/PythonEmbed4Win.ps1" `
+  -OutFile "PythonEmbed4Win.ps1"
+
 .\PythonEmbed4Win.ps1
 ```
 
-If you get the error<br/> `PythonEmbed4Win.ps1 cannot be loaded because running scripts is disabled on this system`<br/>
+If you get the error:
+
+`PythonEmbed4Win.ps1 cannot be loaded because running scripts is disabled on this system`<br/>
+
 then run:
 
 ```powershell
-Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope Process
+Set-ExecutionPolicy -ExecutionPolicy Unrestricted `
+  -Scope Process
 ```
 
 ## About
