@@ -39,6 +39,8 @@ installation will run correctly in an isolated manner.
 This is similar to a Python Virtual Environment but technically is not.
 It does not require an _activate_ script to set environment variable `VIRTUAL_ENV`
 or modify the `PATH`. It will run isolated without environment modifications.
+The one requirement is the user must execute the Python interpreter directly including for module invocations,
+.e.g. `C:\Path\to\embed\python.exe ...` or `C:\Path\to\embed\python.exe -m pip install ...`.
 
 One disadvantage is that a Windows embed Python cannot create a functioning
 virtual environment. They will be created but `virtualenv` and `venv`
@@ -105,23 +107,6 @@ DESCRIPTION
     
     Inspired by this stackoverflow.com question:
     https://stackoverflow.com/questions/68958635/python-windows-embeddable-package-fails-to-run-no-module-named-pip-the-system/68958636
-    
-    BUG: Some embed.zip for a few releases are hardcoded to look for other
-         Windows Python installations.
-         For example, if you install Python-3.8.6.msi and then run this script to
-         install python-3.8.4-embed-amd64.zip, the embed Python 3.8.4 sys.path
-         will be the confusing paths:
-             C:\python-embed-3.8.4\python38.zip
-             C:\python-msi-install-3.8.6\Lib
-             C:\python-msi-install-3.8.6\DLLs
-             C:\python-embed-3.8.4
-             C:\python-msi-install-3.8.6
-             C:\python-msi-install-3.8.6\lib\site-packages
-          The python._pth and sitecustomize.py seem to have no affect.
-          As of November 2023, the latest version of supported Pythons,
-          3.6 to 3.12, appear to behave correctly. It only affects a few
-          intermediate releases.
-    
 
 PARAMETERS
     -ZipFile <String>
