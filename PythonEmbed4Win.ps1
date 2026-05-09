@@ -145,6 +145,7 @@ if ("" -ne "${env:PROCESSOR_ARCHITECTURE}") {
 
 New-Variable -Name URI_GETPIP -Option ReadOnly -Force -Value ([URI] "https://bootstrap.pypa.io/get-pip.py")
 New-Variable -Name URI_GETPIP36 -Option ReadOnly -Force -Value ([URI] "https://bootstrap.pypa.io/pip/3.6/get-pip.py")
+New-Variable -Name URI_GETPIP39 -Option ReadOnly -Force -Value ([URI] "https://bootstrap.pypa.io/pip/3.9/get-pip.py")
 New-Variable -Name URI_PYTHON_VERSIONS -Option ReadOnly -Force -Value ([URI] "https://www.python.org/ftp/python")
 
 function URI-Combine
@@ -1164,6 +1165,9 @@ Also, this installation cannot create new virtual environments.
     $uri_getpip1 = $URI_GETPIP
     if ($ver -lt [System.Version]"3.7") {
         $uri_getpip1 = $URI_GETPIP36
+    }
+    elseif ($ver -lt [System.Version]"3.10") {
+        $uri_getpip1 = $URI_GETPIP39
     }
     Download $uri_getpip1 $path_getpip
     & $python_exe -O $path_getpip --no-warn-script-location
